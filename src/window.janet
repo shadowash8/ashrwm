@@ -16,7 +16,9 @@
     [:title title]
     (put window :title title)
     [:parent parent]
-    (put window :parent (:get-user-data parent))))
+    (put window :parent (:get-user-data parent))
+    [:decoration-hint hint]
+    (put window :decoration-hint hint)))
 
 (defn create [obj]
   (def window @{:obj obj
@@ -25,7 +27,8 @@
                 :min-w 0 :min-h 0 :max-w 0 :max-h 0
                 :w 0 :h 0
                 :app-id nil
-                :title nil})
+                :title nil
+                :parent nil
+                :decoration-hint nil})
   (:set-listener obj handle-event window)
-  (:set-user-data obj window)
   window)

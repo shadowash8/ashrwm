@@ -4,10 +4,15 @@
 
 (import ./window)
 
-(defn- update-windowing []
+(defn- update-windowing [wm]
+  (->> (wm :windows)
+       (map (fn [window]
+              (:propose-dimensions (window :obj) 200 200)
+              (:set-borders (window :obj) {:top true :bottom true} 8
+                            (- (math/pow 2 32) 1) 0 0 (- (math/pow 2 32) 1)))))
   (:update-windowing-finish (registry :wm)))
 
-(defn- update-rendering []
+(defn- update-rendering [wm]
   (:update-rendering-finish (registry :wm)))
 
 (defn- handle-event [obj event wm]
@@ -16,8 +21,8 @@
                      (print "another window manager is already running")
                      (os/exit 1))
     [:finished] (error "unreachable")
-    [:update-windowing-start] (update-windowing)
-    [:update-rendering-start] (update-rendering)
+    [:update-windowing-start] (update-windowing wm)
+    [:update-rendering-start] (update-rendering wm)
     [:window obj] (array/push (wm :windows) (window/create obj))
     [:output]
     [:seat]))

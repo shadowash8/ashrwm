@@ -9,7 +9,7 @@
            :custom-protocols ["../river/protocol/river-window-management-v1.xml"]))
 
 (defn main [&]
-  (def display (wl/display/connect interfaces))
+  (def display (wl/display-connect interfaces))
 
   (:init registry display)
 
