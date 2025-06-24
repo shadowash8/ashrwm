@@ -16,9 +16,22 @@
     [:title title]
     (put window :title title)
     [:parent parent]
-    (put window :parent (:get-user-data parent))
+    (put window :parent (if parent (:get-user-data parent)))
     [:decoration-hint hint]
-    (put window :decoration-hint hint)))
+    (put window :decoration-hint hint)
+    [:move-requested seat serial]
+    (put window :move-requested {:seat (:get-user-data seat)
+                                 :serial serial})
+    [:resize-requested seat serial edges]
+    (put window :resize-requested {:seat (:get-user-data seat)
+                                   :serial serial
+                                   :edges edges})
+    [:fullscreen-requested output]
+    (put window :fullscreen-requested [:enter (if output (:get-user-data output))])
+    [:exit-fullscreen-requested]
+    (put window :fullscreen-requested [:exit])
+
+    (printf "Ignoring event %p" event)))
 
 (defn create [obj]
   (def window @{:obj obj
