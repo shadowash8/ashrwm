@@ -3,6 +3,8 @@
 (use ./registry)
 
 (import ./window)
+(import ./output)
+(import ./seat)
 
 (defn- update-windowing [wm]
   (->> (wm :windows)
@@ -24,8 +26,8 @@
     [:update-windowing-start] (update-windowing wm)
     [:update-rendering-start] (update-rendering wm)
     [:window obj] (array/push (wm :windows) (window/create obj))
-    [:output]
-    [:seat]))
+    [:output obj] (array/push (wm :outputs) (output/create obj))
+    [:seat obj]) (array/push (wm :seats) (seat/create obj)))
 
 (defn- init [wm]
   (:set-listener (registry :wm) handle-event wm))
