@@ -33,15 +33,34 @@
 
     (printf "Ignoring event %p" event)))
 
+(defn- update-windowing [window]
+  (if (window :closed)
+    (do
+      (:destroy (window :obj))
+      (each (wm :seats)
+        (if (= (seat :focused) window)
+          (:focus seat nil)))
+      nil)
+    (do
+      (if (window :new)
+        (do
+          (:use-ssd (window :obj))))
+      # TODO handle op
+)))
+
+(defn- update-windowing-finish [window]
+  (put window :new nil)
+  (put window :move-requested nil)
+  (put window :resize-requested nil)
+  (put window :fullscreen-requested nil))
+
+(def- window-proto
+  @{:update-windowing update-windowing
+    :update-windowing-finish update-windowing-finish})
+
 (defn create [obj]
   (def window @{:obj obj
                 :node (:get-node obj)
-                :closed false
-                :min-w 0 :min-h 0 :max-w 0 :max-h 0
-                :w 0 :h 0
-                :app-id nil
-                :title nil
-                :parent nil
-                :decoration-hint nil})
+                :new true})
   (:set-listener obj handle-event window)
-  window)
+  (table/setproto window window-proto))

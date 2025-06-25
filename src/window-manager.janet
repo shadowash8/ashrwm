@@ -7,11 +7,15 @@
 (import ./seat)
 
 (defn- update-windowing [wm]
-  (->> (wm :windows)
-       (map (fn [window]
-              (:propose-dimensions (window :obj) 200 200)
-              (:set-borders (window :obj) {:top true :bottom true} 8
-                            (- (math/pow 2 32) 1) 0 0 (- (math/pow 2 32) 1)))))
+  (update (wm :seats) (fn [seats]
+                        (->> seats
+                             (map :update-windowing)
+                             (filter identitiy))))
+  (update (wm :windows) (fn [windows]
+                          (->> windows
+                               (map :update-windowing)
+                               (filter identitiy))))
+
   (:update-windowing-finish (registry :wm)))
 
 (defn- update-rendering [wm]
