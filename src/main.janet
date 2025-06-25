@@ -1,7 +1,8 @@
 (import wayland)
 
+(import ./wm)
+
 (use ./registry)
-(use ./window-manager)
 
 (def interfaces
   (wayland/scan
@@ -14,6 +15,6 @@
 
   (:init registry display)
 
-  (:init wm)
+  (wm/create)
 
   (forever (:dispatch display)))

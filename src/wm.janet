@@ -7,18 +7,25 @@
 (import ./seat)
 
 (defn- update-windowing [wm]
-  (update (wm :seats) (fn [seats]
-                        (->> seats
-                             (map :update-windowing)
-                             (filter identitiy))))
-  (update (wm :windows) (fn [windows]
-                          (->> windows
-                               (map :update-windowing)
-                               (filter identitiy))))
+  (update wm :outputs |(keep :update-windowing-start $))
+  (update wm :seats |(keep :update-windowing-start $))
+  (update wm :windows |(keep :update-windowing-start $))
+
+  (map |(:update-windowing $ wm) (wm :outputs))
+  (map |(:update-windowing $ wm) (wm :seats))
+  (map |(:update-windowing $ wm) (wm :windows))
+
+  (map (fn [window]
+         (:propose-dimensions (window :obj) 200 200)) (wm :windows))
+
+  (map :update-windowing-finish (wm :outputs))
+  (map :update-windowing-finish (wm :seats))
+  (map :update-windowing-finish (wm :windows))
 
   (:update-windowing-finish (registry :wm)))
 
 (defn- update-rendering [wm]
+  (map |(:update-rendering $ wm) (wm :windows))
   (:update-rendering-finish (registry :wm)))
 
 (defn- handle-event [obj event wm]
@@ -31,12 +38,10 @@
     [:update-rendering-start] (update-rendering wm)
     [:window obj] (array/push (wm :windows) (window/create obj))
     [:output obj] (array/push (wm :outputs) (output/create obj))
-    [:seat obj]) (array/push (wm :seats) (seat/create obj)))
+    [:seat obj] (array/push (wm :seats) (seat/create obj))))
 
-(defn- init [wm]
+(defn create []
+  (def wm @{:outputs @[]
+            :seats @[]
+            :windows @[]})
   (:set-listener (registry :wm) handle-event wm))
-
-(def wm @{:windows @[]
-          :outputs @[]
-          :seats @[]
-          :init init})
