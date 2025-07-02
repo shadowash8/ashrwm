@@ -37,6 +37,7 @@
 (defn- handle-event [obj event seat]
   (match event
     [:removed] (put seat :removed true)
+    [:wl-seat wl-seat] (put seat :wl-seat wl-seat)
     [:pointer-enter window] (put seat :pointer-target (:get-user-data window))
     [:pointer-leave] (put seat :pointer-target nil)
     [:pointer-activity] (put seat :pointer-activity true)

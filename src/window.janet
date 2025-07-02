@@ -15,10 +15,10 @@
   (put window :resize-requested nil)
   (put window :fullscreen-requested nil))
 
-(defn- set-borders [window status]
+(defn- set-borders [window status config]
   (def rgb (case status
-             :focused 0x93a1a1
-             :normal 0x586e75))
+             :normal (config :border-normal)
+             :focused (config :border-focused)))
   (:set-borders (window :obj)
                 {:left true :bottom :true :top :true :right true}
                 8
@@ -29,8 +29,8 @@
 
 (defn- update-rendering [window wm]
   (if (find |(= ($ :focused) window) (wm :seats))
-    (set-borders window :focused)
-    (set-borders window :normal)))
+    (set-borders window :focused (wm :config))
+    (set-borders window :normal (wm :config))))
 
 (def- window-proto
   @{:update-windowing-start update-windowing-start

@@ -17,6 +17,7 @@
 (defn- handle-event [obj event output]
   (match event
     [:removed] (put output :removed true)
+    [:wl-output wl-output] (put output :wl-output wl-output)
     [:position x y] (do (put output :x x) (put output :y y))
     [:dimensions w h] (do (put output :w w) (put output :h h))
 
@@ -24,6 +25,6 @@
 
 (defn create [obj]
   (def output @{:obj obj
-                :new nil})
+                :new true})
   (:set-listener obj handle-event output)
   (table/setproto output output-proto))

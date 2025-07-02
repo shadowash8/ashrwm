@@ -1,7 +1,5 @@
 (import wayland :as wl)
 
-(use ./registry)
-
 (import ./window)
 (import ./output)
 (import ./seat)
@@ -22,11 +20,11 @@
   (map :update-windowing-finish (wm :seats))
   (map :update-windowing-finish (wm :windows))
 
-  (:update-windowing-finish (registry :wm)))
+  (:update-windowing-finish ((wm :registry) :rwm)))
 
 (defn- update-rendering [wm]
   (map |(:update-rendering $ wm) (wm :windows))
-  (:update-rendering-finish (registry :wm)))
+  (:update-rendering-finish ((wm :registry) :rwm)))
 
 (defn- handle-event [obj event wm]
   (match event
@@ -36,12 +34,14 @@
     [:finished] (error "unreachable")
     [:update-windowing-start] (update-windowing wm)
     [:update-rendering-start] (update-rendering wm)
-    [:window obj] (array/push (wm :windows) (window/create obj))
     [:output obj] (array/push (wm :outputs) (output/create obj))
-    [:seat obj] (array/push (wm :seats) (seat/create obj))))
+    [:seat obj] (array/push (wm :seats) (seat/create obj))
+    [:window obj] (array/push (wm :windows) (window/create obj))))
 
-(defn create []
-  (def wm @{:outputs @[]
-            :seats @[]
-            :windows @[]})
-  (:set-listener (registry :wm) handle-event wm))
+
+(defn init [wm registry]
+  (put wm :registry registry)
+  (put wm :outputs @[])
+  (put wm :seats @[])
+  (put wm :windows @[])
+  (:set-listener (registry :rwm) handle-event wm))

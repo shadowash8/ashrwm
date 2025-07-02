@@ -1,8 +1,8 @@
 (import wayland)
+(import spork/netrepl)
 
+(import ./registry)
 (import ./wm)
-
-(use ./registry)
 
 (def interfaces
   (wayland/scan
@@ -10,11 +10,19 @@
                        "staging/single-pixel-buffer/single-pixel-buffer-v1.xml"]
     :custom-protocols ["../river/protocol/river-window-management-v1.xml"]))
 
+(def config @{:border-normal 0x586e75
+              :border-focused 0x93a1a1})
+
+(def wm @{:config config})
+
 (defn main [&]
   (def display (wayland/connect interfaces))
 
-  (:init registry display)
+  (def registry (registry/create display))
 
-  (wm/create)
+  (wm/init wm registry)
+
+  (def repl-server
+    (netrepl/server "127.0.0.1" "9365" (fiber/getenv (fiber/current))))
 
   (forever (:dispatch display)))
