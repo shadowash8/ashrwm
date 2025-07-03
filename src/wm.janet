@@ -4,27 +4,27 @@
 (import ./output)
 (import ./seat)
 
-(defn- update-windowing [wm]
-  (update wm :outputs |(keep :update-windowing-start $))
-  (update wm :seats |(keep :update-windowing-start $))
-  (update wm :windows |(keep :update-windowing-start $))
+(defn- manage [wm]
+  (update wm :outputs |(keep :manage-start $))
+  (update wm :seats |(keep :manage-start $))
+  (update wm :windows |(keep :manage-start $))
 
-  (map |(:update-windowing $ wm) (wm :outputs))
-  (map |(:update-windowing $ wm) (wm :seats))
-  (map |(:update-windowing $ wm) (wm :windows))
+  (map |(:manage $ wm) (wm :outputs))
+  (map |(:manage $ wm) (wm :seats))
+  (map |(:manage $ wm) (wm :windows))
 
   (map (fn [window]
          (:propose-dimensions (window :obj) 200 200)) (wm :windows))
 
-  (map :update-windowing-finish (wm :outputs))
-  (map :update-windowing-finish (wm :seats))
-  (map :update-windowing-finish (wm :windows))
+  (map :manage-finish (wm :outputs))
+  (map :manage-finish (wm :seats))
+  (map :manage-finish (wm :windows))
 
-  (:update-windowing-finish ((wm :registry) :rwm)))
+  (:manage-finish ((wm :registry) :rwm)))
 
-(defn- update-rendering [wm]
-  (map |(:update-rendering $ wm) (wm :windows))
-  (:update-rendering-finish ((wm :registry) :rwm)))
+(defn- render [wm]
+  (map |(:render $ wm) (wm :windows))
+  (:render-finish ((wm :registry) :rwm)))
 
 (defn- handle-event [obj event wm]
   (match event
@@ -32,8 +32,8 @@
                      (print "another window manager is already running")
                      (os/exit 1))
     [:finished] (error "unreachable")
-    [:update-windowing-start] (update-windowing wm)
-    [:update-rendering-start] (update-rendering wm)
+    [:manage-start] (manage wm)
+    [:render-start] (render wm)
     [:output obj] (array/push (wm :outputs) (output/create obj))
     [:seat obj] (array/push (wm :seats) (seat/create obj))
     [:window obj] (array/push (wm :windows) (window/create obj))))

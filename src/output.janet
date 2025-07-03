@@ -1,18 +1,18 @@
 (import wayland :as wl)
 
-(defn- update-windowing-start [output]
+(defn- manage-start [output]
   (if (output :removed)
     (:destroy (output :obj))
     output))
 
-(defn- update-windowing [output wm])
+(defn- manage [output wm])
 
-(defn- update-windowing-finish [output]
+(defn- manage-finish [output]
   (put output :new nil))
 
-(def- output-proto @{:update-windowing-start update-windowing-start
-                     :update-windowing update-windowing
-                     :update-windowing-finish update-windowing-finish})
+(def- output-proto @{:manage-start manage-start
+                     :manage manage
+                     :manage-finish manage-finish})
 
 (defn- handle-event [obj event output]
   (match event

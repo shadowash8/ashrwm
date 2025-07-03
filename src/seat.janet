@@ -1,11 +1,11 @@
 (import wayland :as wl)
 
-(defn- update-windowing-start [seat]
+(defn- manage-start [seat]
   (if (seat :removed)
     (:destroy (seat :obj))
     seat))
 
-(defn- update-windowing [seat wm]
+(defn- manage [seat wm]
   # TODO create bindings
   (if (or (seat :new) (not (seat :focused-output)))
     (put seat :focused-output (first (wm :outputs))))
@@ -18,7 +18,7 @@
     (if (window :closed)
       (:focus seat nil))))
 
-(defn- update-windowing-finish [seat]
+(defn- manage-finish [seat]
   (put seat :new nil)
   (put seat :window-interaction nil)
   (put seat :pointer-activity nil))
@@ -29,9 +29,9 @@
     (:clear-focus (seat :obj)))
   (put seat :focused window))
 
-(def- seat-proto @{:update-windowing update-windowing
-                   :update-windowing-start update-windowing-start
-                   :update-windowing-finish update-windowing-finish
+(def- seat-proto @{:manage manage
+                   :manage-start manage-start
+                   :manage-finish manage-finish
                    :focus focus})
 
 (defn- handle-event [obj event seat]

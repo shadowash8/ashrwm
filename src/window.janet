@@ -1,15 +1,15 @@
 (import wayland :as wl)
 
-(defn- update-windowing-start [window]
+(defn- manage-start [window]
   (if (window :closed)
     (:destroy (window :obj))
     window))
 
-(defn- update-windowing [window wm]
+(defn- manage [window wm]
   (if (window :new)
     (:use-ssd (window :obj))))
 
-(defn- update-windowing-finish [window]
+(defn- manage-finish [window]
   (put window :new nil)
   (put window :move-requested nil)
   (put window :resize-requested nil)
@@ -27,16 +27,16 @@
                 (* (band 0xff rgb) (/ 0xffff_ffff 0xff))
                 0xffff_ffff))
 
-(defn- update-rendering [window wm]
+(defn- render [window wm]
   (if (find |(= ($ :focused) window) (wm :seats))
     (set-borders window :focused (wm :config))
     (set-borders window :normal (wm :config))))
 
 (def- window-proto
-  @{:update-windowing-start update-windowing-start
-    :update-windowing update-windowing
-    :update-windowing-finish update-windowing-finish
-    :update-rendering update-rendering})
+  @{:manage-start manage-start
+    :manage manage
+    :manage-finish manage-finish
+    :render render})
 
 (defn- handle-event [obj event window]
   (match event
