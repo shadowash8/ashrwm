@@ -1,11 +1,12 @@
-(import wayland :as wl)
+(import ./background)
 
 (defn- manage-start [output]
   (if (output :removed)
     (:destroy (output :obj))
     output))
 
-(defn- manage [output wm])
+(defn- manage [output wm]
+  (background/manage (output :background) output wm))
 
 (defn- manage-finish [output]
   (put output :new nil))
@@ -23,8 +24,9 @@
 
     (printf "Ignoring event %p" event)))
 
-(defn create [obj]
+(defn create [obj registry]
   (def output @{:obj obj
+                :background (background/create registry)
                 :new true})
   (:set-listener obj handle-event output)
   (table/setproto output output-proto))

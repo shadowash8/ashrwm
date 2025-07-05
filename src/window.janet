@@ -1,5 +1,7 @@
 (import wayland :as wl)
 
+(import ./color)
+
 (defn- manage-start [window]
   (if (window :closed)
     (:destroy (window :obj))
@@ -22,10 +24,8 @@
   (:set-borders (window :obj)
                 {:left true :bottom :true :top :true :right true}
                 8
-                (* (band 0xff (brushift rgb 16)) (/ 0xffff_ffff 0xff))
-                (* (band 0xff (brushift rgb 8)) (/ 0xffff_ffff 0xff))
-                (* (band 0xff rgb) (/ 0xffff_ffff 0xff))
-                0xffff_ffff))
+                ;(color/rgb-to-u32-rgba rgb)))
+
 
 (defn- render [window wm]
   (if (find |(= ($ :focused) window) (wm :seats))

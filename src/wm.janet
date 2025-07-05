@@ -14,7 +14,7 @@
   (map |(:manage $ wm) (wm :windows))
 
   (map (fn [window]
-         (:propose-dimensions (window :obj) 200 200)) (wm :windows))
+         (:propose-dimensions (window :obj) 500 500)) (wm :windows))
 
   (map :manage-finish (wm :outputs))
   (map :manage-finish (wm :seats))
@@ -34,7 +34,7 @@
     [:finished] (error "unreachable")
     [:manage-start] (manage wm)
     [:render-start] (render wm)
-    [:output obj] (array/push (wm :outputs) (output/create obj))
+    [:output obj] (array/push (wm :outputs) (output/create obj (wm :registry)))
     [:seat obj] (array/push (wm :seats) (seat/create obj))
     [:window obj] (array/push (wm :windows) (window/create obj))))
 

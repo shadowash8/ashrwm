@@ -2,7 +2,7 @@
   (match event
     [:global name interface version]
     (case interface
-      "wl_compositor" (put registry :compositor (:bind obj name interface 1))
+      "wl_compositor" (put registry :compositor (:bind obj name interface 4)) # need 4 for attach-buffer
       "wp_viewporter" (put registry :viewporter (:bind obj name interface 1))
       "wp_single_pixel_buffer_manager_v1" (put registry :single-pixel (:bind obj name interface 1))
       # XXX check advertised version

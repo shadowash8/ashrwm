@@ -16,7 +16,9 @@
     (:focus seat window))
   (if-let [window (seat :focused)]
     (if (window :closed)
-      (:focus seat nil))))
+      (:focus seat nil)))
+  (if (not (seat :focused))
+    (:focus seat (first (wm :windows)))))
 
 (defn- manage-finish [seat]
   (put seat :new nil)

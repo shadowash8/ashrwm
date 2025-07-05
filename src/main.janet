@@ -10,7 +10,8 @@
                        "staging/single-pixel-buffer/single-pixel-buffer-v1.xml"]
     :custom-protocols ["../river/protocol/river-window-management-v1.xml"]))
 
-(def config @{:border-normal 0x586e75
+(def config @{:background 0x002b36
+              :border-normal 0x586e75
               :border-focused 0x93a1a1})
 
 (def wm @{:config config})
