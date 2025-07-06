@@ -5,25 +5,25 @@
 (import ./seat)
 
 (defn- manage [wm]
-  (update wm :outputs |(keep :manage-start $))
-  (update wm :seats |(keep :manage-start $))
-  (update wm :windows |(keep :manage-start $))
+  (update wm :outputs |(keep output/manage-start $))
+  (update wm :seats |(keep seat/manage-start $))
+  (update wm :windows |(keep window/manage-start $))
 
-  (map |(:manage $ wm) (wm :outputs))
-  (map |(:manage $ wm) (wm :seats))
-  (map |(:manage $ wm) (wm :windows))
+  (map |(output/manage $ wm) (wm :outputs))
+  (map |(seat/manage $ wm) (wm :seats))
+  (map |(window/manage $ wm) (wm :windows))
 
   (map (fn [window]
          (:propose-dimensions (window :obj) 500 500)) (wm :windows))
 
-  (map :manage-finish (wm :outputs))
-  (map :manage-finish (wm :seats))
-  (map :manage-finish (wm :windows))
+  (map output/manage-finish (wm :outputs))
+  (map seat/manage-finish (wm :seats))
+  (map window/manage-finish (wm :windows))
 
   (:manage-finish ((wm :registry) :rwm)))
 
 (defn- render [wm]
-  (map |(:render $ wm) (wm :windows))
+  (map |(window/render $ wm) (wm :windows))
   (:render-finish ((wm :registry) :rwm)))
 
 (defn- handle-event [obj event wm]

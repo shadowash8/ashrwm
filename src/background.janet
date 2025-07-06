@@ -13,6 +13,12 @@
   (:commit (bg :surface))
   (:destroy buffer))
 
+(defn destroy [bg]
+  (:destroy (bg :surface))
+  (:destroy (bg :viewport))
+  (:destroy (bg :shell-surface))
+  (:destroy (bg :node)))
+
 (defn create [registry]
   (def surface (:create-surface (registry :compositor)))
   (def viewport (:get-viewport (registry :viewporter) surface))

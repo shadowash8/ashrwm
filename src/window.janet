@@ -2,16 +2,16 @@
 
 (import ./color)
 
-(defn- manage-start [window]
+(defn manage-start [window]
   (if (window :closed)
     (:destroy (window :obj))
     window))
 
-(defn- manage [window wm]
+(defn manage [window wm]
   (if (window :new)
     (:use-ssd (window :obj))))
 
-(defn- manage-finish [window]
+(defn manage-finish [window]
   (put window :new nil)
   (put window :move-requested nil)
   (put window :resize-requested nil)
@@ -27,16 +27,10 @@
                 ;(color/rgb-to-u32-rgba rgb)))
 
 
-(defn- render [window wm]
+(defn render [window wm]
   (if (find |(= ($ :focused) window) (wm :seats))
     (set-borders window :focused (wm :config))
     (set-borders window :normal (wm :config))))
-
-(def- window-proto
-  @{:manage-start manage-start
-    :manage manage
-    :manage-finish manage-finish
-    :render render})
 
 (defn- handle-event [obj event window]
   (match event
@@ -76,4 +70,4 @@
                 :node (:get-node obj)
                 :new true})
   (:set-listener obj handle-event window)
-  (table/setproto window window-proto))
+  window)
