@@ -26,7 +26,6 @@
                 8
                 ;(color/rgb-to-u32-rgba rgb)))
 
-
 (defn render [window wm]
   (if (find |(= ($ :focused) window) (wm :seats))
     (set-borders window :focused (wm :config))
@@ -61,9 +60,7 @@
     [:fullscreen-requested output]
     (put window :fullscreen-requested [:enter (if output (:get-user-data output))])
     [:exit-fullscreen-requested]
-    (put window :fullscreen-requested [:exit])
-
-    (printf "Ignoring event %p" event)))
+    (put window :fullscreen-requested [:exit])))
 
 (defn create [obj]
   (def window @{:obj obj

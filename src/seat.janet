@@ -39,9 +39,7 @@
     [:pointer-leave] (put seat :pointer-target nil)
     [:pointer-activity] (put seat :pointer-activity true)
     [:window-interaction window] (put seat :window-interaction (:get-user-data window))
-    [:op-delta dx dy] (do (put seat :op-dx dx) (put seat :op-dy dy))
-
-    (printf "Ignoring event %p" event)))
+    [:op-delta dx dy] (do (put seat :op-dx dx) (put seat :op-dy dy))))
 
 (defn create [obj]
   (def seat @{:obj obj

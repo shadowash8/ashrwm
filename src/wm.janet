@@ -38,7 +38,6 @@
     [:seat obj] (array/push (wm :seats) (seat/create obj))
     [:window obj] (array/push (wm :windows) (window/create obj))))
 
-
 (defn init [wm registry]
   (put wm :registry registry)
   (put wm :outputs @[])

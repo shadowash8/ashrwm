@@ -18,8 +18,7 @@
     [:removed] (put output :removed true)
     [:wl-output wl-output] (put output :wl-output wl-output)
     [:position x y] (do (put output :x x) (put output :y y))
-    [:dimensions w h] (do (put output :w w) (put output :h h))
-    (printf "Ignoring event %p" event)))
+    [:dimensions w h] (do (put output :w w) (put output :h h))))
 
 (defn create [obj registry]
   (def output @{:obj obj
