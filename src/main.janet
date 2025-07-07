@@ -23,6 +23,10 @@
 (defn main [&]
   (def display (wayland/connect interfaces))
 
+  # Avoid passing WAYLAND_DEBUG on to our children.
+  # It only matters if it's set when the display is created.
+  (os/setenv "WAYLAND_DEBUG" nil)
+
   (def registry (registry/create display))
 
   (wm/init wm registry)

@@ -1,5 +1,7 @@
 (import wayland :as wl)
 
+(import ./xkb-binding)
+
 (defn- focus [seat window]
   (if window
     (:focus-window (seat :obj) (window :obj))
@@ -12,7 +14,12 @@
     seat))
 
 (defn manage [seat wm]
-  # TODO create bindings
+  (if (seat :new)
+    (do
+      (xkb-binding/create seat :space {:mod4 true :mod1 true}
+                          (fn []
+                            (ev/spawn
+                              (os/proc-wait (os/spawn ["foot"] :p)))))))
   (if (or (seat :new) (not (seat :focused-output)))
     (put seat :focused-output (first (wm :outputs))))
 
@@ -24,12 +31,15 @@
     (if (window :closed)
       (focus seat nil)))
   (if (not (seat :focused))
-    (focus seat (first (wm :windows)))))
+    (focus seat (first (wm :windows))))
+
+  (if-let [action (seat :pending-action)] (action)))
 
 (defn manage-finish [seat]
   (put seat :new nil)
   (put seat :window-interaction nil)
-  (put seat :pointer-activity nil))
+  (put seat :pointer-activity nil)
+  (put seat :pending-action nil))
 
 (defn- handle-event [obj event seat]
   (match event

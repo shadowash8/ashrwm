@@ -1,6 +1,8 @@
 @{:author "Isaac Freund"
-  :dependencies @["wayland" "spork"]
+  :dependencies @["wayland" "spork" "xkbcommon"]
   :description "Window manager for the river Wayland compositor"
-  :jpm-dependencies @[{:url "https://github.com/janet-lang/spork"} {:url "https://codeberg.org/ifreund/janet-wayland"}]
+  :jpm-dependencies @[{:url "https://github.com/janet-lang/spork"}
+                      {:url "https://codeberg.org/ifreund/janet-wayland"}
+                      {:url "https://codeberg.org/ifreund/janet-xkbcommon"}]
   :name "rijan"
   :version "0.0.0"}
