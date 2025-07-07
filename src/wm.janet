@@ -4,6 +4,33 @@
 (import ./output)
 (import ./seat)
 
+(defn- layout [wm]
+  (def output (first (wm :outputs)))
+  (def side-count (- (length (wm :windows)) 1))
+  (def total-w (max 0 (- (output :w) (* 2 ((wm :config) :outer-padding)))))
+  (def total-h (max 0 (- (output :h) (* 2 ((wm :config) :outer-padding)))))
+  (def main-w (if (= 0 side-count) total-w (math/round (* total-w ((wm :config) :main-ratio)))))
+  (def side-w (- total-w main-w))
+  (def side-h (div total-h side-count))
+  (def side-h-rem (% total-h side-count))
+  (->> (range (length (wm :windows)))
+       (map (fn [i]
+              (case i
+                0 [0 0 main-w total-h]
+                1 [main-w 0 side-w (+ side-h side-h-rem)]
+                [main-w (+ side-h-rem (* side-h (- i 1)))
+                 side-w side-h])))
+       (map (fn [[x y w h]]
+              (def outer ((wm :config) :outer-padding))
+              (def inner ((wm :config) :inner-padding))
+              [(+ x outer inner) (+ y outer inner)
+               (- w (* 2 inner)) (- h (* 2 inner))]))
+       (map (fn [window box]
+              (:set-tiled (window :obj) {:left true :bottom :true :top :true :right true})
+              (window/set-position window wm ;(slice box 0 2))
+              (window/propose-dimensions window wm ;(slice box 2 4)))
+            (wm :windows))))
+
 (defn- manage [wm]
   (update wm :outputs |(keep output/manage-start $))
   (update wm :seats |(keep seat/manage-start $))
@@ -13,8 +40,7 @@
   (map |(seat/manage $ wm) (wm :seats))
   (map |(window/manage $ wm) (wm :windows))
 
-  (map (fn [window]
-         (:propose-dimensions (window :obj) 500 500)) (wm :windows))
+  (layout wm)
 
   (map output/manage-finish (wm :outputs))
   (map seat/manage-finish (wm :seats))

@@ -2,6 +2,20 @@
 
 (import ./color)
 
+(defn set-position
+  "Set position, adjusting for border width"
+  [window wm x y]
+  (def border-width ((wm :config) :border-width))
+  (:set-position (window :node) (+ x border-width) (+ y border-width)))
+
+(defn propose-dimensions
+  "Propose dimensions, adjusting for border width"
+  [window wm w h]
+  (def border-width ((wm :config) :border-width))
+  (:propose-dimensions (window :obj)
+                       (max 1 (- w (* 2 border-width)))
+                       (max 1 (- h (* 2 border-width)))))
+
 (defn manage-start [window]
   (if (window :closed)
     (:destroy (window :obj))
@@ -23,7 +37,7 @@
              :focused (config :border-focused)))
   (:set-borders (window :obj)
                 {:left true :bottom :true :top :true :right true}
-                8
+                (config :border-width)
                 ;(color/rgb-to-u32-rgba rgb)))
 
 (defn render [window wm]
