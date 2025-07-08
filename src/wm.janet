@@ -50,6 +50,7 @@
 
 (defn- render [wm]
   (map |(window/render $ wm) (wm :windows))
+  (map |(seat/render $ wm) (wm :seats))
   (:render-finish ((wm :registry) :rwm)))
 
 (defn- handle-event [obj event wm]

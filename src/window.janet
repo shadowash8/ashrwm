@@ -5,8 +5,12 @@
 (defn set-position
   "Set position, adjusting for border width"
   [window wm x y]
-  (def border-width ((wm :config) :border-width))
-  (:set-position (window :node) (+ x border-width) (+ y border-width)))
+  (let [border-width ((wm :config) :border-width)
+        x (+ x border-width)
+        y (+ y border-width)]
+    (put window :x x)
+    (put window :y y)
+    (:set-position (window :node) x y)))
 
 (defn propose-dimensions
   "Propose dimensions, adjusting for border width"
