@@ -13,16 +13,18 @@
 (defn manage-finish [output]
   (put output :new nil))
 
-(defn- handle-event [obj event output]
-  (match event
-    [:removed] (put output :removed true)
-    [:wl-output wl-output] (put output :wl-output wl-output)
-    [:position x y] (do (put output :x x) (put output :y y))
-    [:dimensions w h] (do (put output :w w) (put output :h h))))
-
 (defn create [obj registry]
   (def output @{:obj obj
                 :background (background/create registry)
                 :new true})
-  (:set-listener obj handle-event output)
+
+  (defn handle-event [event]
+    (match event
+      [:removed] (put output :removed true)
+      [:wl-output wl-output] (put output :wl-output wl-output)
+      [:position x y] (do (put output :x x) (put output :y y))
+      [:dimensions w h] (do (put output :w w) (put output :h h))))
+
+  (:set-handler obj handle-event)
+  (:set-user-data obj output)
   output)

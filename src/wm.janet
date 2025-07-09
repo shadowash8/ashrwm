@@ -6,14 +6,15 @@
 
 (defn- layout [wm]
   (def output (first (wm :outputs)))
-  (def side-count (- (length (wm :windows)) 1))
+  (def windows (filter |(not ($ :float)) (wm :windows)))
+  (def side-count (- (length windows) 1))
   (def total-w (max 0 (- (output :w) (* 2 ((wm :config) :outer-padding)))))
   (def total-h (max 0 (- (output :h) (* 2 ((wm :config) :outer-padding)))))
   (def main-w (if (= 0 side-count) total-w (math/round (* total-w ((wm :config) :main-ratio)))))
   (def side-w (- total-w main-w))
   (def side-h (div total-h side-count))
   (def side-h-rem (% total-h side-count))
-  (->> (range (length (wm :windows)))
+  (->> (range (length windows))
        (map (fn [i]
               (case i
                 0 [0 0 main-w total-h]
@@ -26,10 +27,9 @@
               [(+ x outer inner) (+ y outer inner)
                (- w (* 2 inner)) (- h (* 2 inner))]))
        (map (fn [window box]
-              (:set-tiled (window :obj) {:left true :bottom :true :top :true :right true})
               (window/set-position window wm ;(slice box 0 2))
               (window/propose-dimensions window wm ;(slice box 2 4)))
-            (wm :windows))))
+            windows)))
 
 (defn- manage [wm]
   (update wm :outputs |(keep output/manage-start $))
@@ -53,21 +53,22 @@
   (map |(seat/render $ wm) (wm :seats))
   (:render-finish ((wm :registry) :rwm)))
 
-(defn- handle-event [obj event wm]
-  (match event
-    [:unavailable] (do
-                     (print "another window manager is already running")
-                     (os/exit 1))
-    [:finished] (error "unreachable")
-    [:manage-start] (manage wm)
-    [:render-start] (render wm)
-    [:output obj] (array/push (wm :outputs) (output/create obj (wm :registry)))
-    [:seat obj] (array/push (wm :seats) (seat/create obj))
-    [:window obj] (array/push (wm :windows) (window/create obj))))
-
 (defn init [wm registry]
   (put wm :registry registry)
   (put wm :outputs @[])
   (put wm :seats @[])
   (put wm :windows @[])
-  (:set-listener (registry :rwm) handle-event wm))
+
+  (defn handle-event [event]
+    (match event
+      [:unavailable] (do
+                       (print "another window manager is already running")
+                       (os/exit 1))
+      [:finished] (error "unreachable")
+      [:manage-start] (manage wm)
+      [:render-start] (render wm)
+      [:output obj] (array/push (wm :outputs) (output/create obj (wm :registry)))
+      [:seat obj] (array/push (wm :seats) (seat/create obj))
+      [:window obj] (array/push (wm :windows) (window/create obj))))
+
+  (:set-handler (registry :rwm) handle-event))

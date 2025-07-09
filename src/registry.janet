@@ -1,29 +1,43 @@
-(defn- handle-event [obj event registry]
-  (match event
-    [:global name interface version]
-    (case interface
-      "wl_compositor" (put registry :compositor (:bind obj name interface 4)) # need 4 for attach-buffer
-      "wp_viewporter" (put registry :viewporter (:bind obj name interface 1))
-      "wp_single_pixel_buffer_manager_v1" (put registry :single-pixel (:bind obj name interface 1))
-      # XXX check advertised version
-      "wl_output" (put (registry :outputs) name (:bind obj name interface 4)) # need 4 for release
-      "wl_seat" (put (registry :seats) name (:bind obj name interface 5)) # need 5 for release
-      "river_window_manager_v1" (put registry :rwm (:bind obj name interface 1)))
-
-    [:global-remove name]
-    (do
-      # XXX remove from wm outputs and seats arrays
-      (if-let [output ((registry :outputs) name)]
-        (:release output))
-      (if-let [seat ((registry :seats) name)]
-        (:release seat)))))
-
 (defn create [display]
   (def registry @{:outputs @{}
                   :seats @{}})
-  (def wl-registry (:get-registry display))
-  (:set-listener wl-registry handle-event registry)
+  (def obj (:get-registry display))
 
+  (defn handle-event [event]
+    (match event
+      # XXX check advertised versions
+      [:global name interface version]
+      (case interface
+        "wl_compositor"
+        # need 4 for attach-buffer
+        (put registry :compositor (:bind obj name interface 4))
+
+        "wp_viewporter"
+        (put registry :viewporter (:bind obj name interface 1))
+
+        "wp_single_pixel_buffer_manager_v1"
+        (put registry :single-pixel (:bind obj name interface 1))
+
+        "river_window_manager_v1"
+        (put registry :rwm (:bind obj name interface 1))
+
+        "wl_output"
+        # need 4 for release
+        (put (registry :outputs) name (:bind obj name interface 4))
+
+        "wl_seat"
+        # need 5 for release
+        (put (registry :seats) name (:bind obj name interface 5)))
+
+      # XXX remove from wm outputs and seats arrays
+      [:global-remove name]
+      (do
+        (if-let [output ((registry :outputs) name)]
+          (:release output))
+        (if-let [seat ((registry :seats) name)]
+          (:release seat)))))
+
+  (:set-handler obj handle-event)
   (:roundtrip display)
 
   (assert (registry :compositor))
