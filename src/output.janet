@@ -21,7 +21,7 @@
   (defn handle-event [event]
     (match event
       [:removed] (put output :removed true)
-      [:wl-output wl-output] (put output :wl-output wl-output)
+      [:wl-output name] (put output :wl-output ((registry :outputs) name))
       [:position x y] (do (put output :x x) (put output :y y))
       [:dimensions w h] (do (put output :w w) (put output :h h))))
 
