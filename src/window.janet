@@ -26,6 +26,17 @@
     (:set-tiled (window :obj) {:left true :bottom :true :top :true :right true}))
   (put window :float float))
 
+(defn set-fullscreen [window fullscreen-output]
+  (if-let [output fullscreen-output]
+    (do
+      (put window :fullscreen true)
+      (:inform-fullscreen (window :obj))
+      (:fullscreen (window :obj) (output :obj)))
+    (do
+      (put window :fullscreen false)
+      (:inform-not-fullscreen (window :obj))
+      (:exit-fullscreen (window :obj)))))
+
 (defn manage-start [window]
   (if (window :closed)
     (:destroy (window :obj))
@@ -34,7 +45,11 @@
 (defn manage [window wm]
   (when (window :new)
     (:use-ssd (window :obj))
-    (set-float window false)))
+    (set-float window false))
+  (match (window :fullscreen-requested)
+    [:enter] (set-fullscreen window ((first (wm :seats)) :focused-output))
+    [:enter output] (set-fullscreen window output)
+    [:exit] (set-fullscreen window nil)))
 
 (defn manage-finish [window]
   (put window :new nil)

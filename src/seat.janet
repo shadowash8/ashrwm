@@ -40,6 +40,13 @@
     (if-let [window (seat :focused)]
       (window/set-float window (not (window :float))))))
 
+(defn- action/fullscreen []
+  (fn [wm seat]
+    (if-let [window (seat :focused)]
+      (if (window :fullscreen)
+        (window/set-fullscreen window nil)
+        (window/set-fullscreen window (seat :focused-output))))))
+
 (defn- action/move-start []
   (fn [wm seat]
     (unless (seat :op)
@@ -82,6 +89,7 @@
     (xkb-binding/create seat :u {:mod4 true :mod1 true} (action/close))
     (xkb-binding/create seat :e {:mod4 true} (action/focus :prev))
     (xkb-binding/create seat :a {:mod4 true} (action/focus :next))
+    (xkb-binding/create seat :t {:mod4 true} (action/fullscreen))
     (xkb-binding/create seat :t {:mod4 true :mod1 true} (action/float))
     (pointer-binding/create seat :left {:mod4 :true} (action/move-start) (action/op-end))
     (pointer-binding/create seat :right {:mod4 :true} (action/resize-start) (action/op-end)))
