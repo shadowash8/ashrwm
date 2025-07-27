@@ -1,5 +1,9 @@
 (import ./background)
 
+(defn visible [output windows]
+  (let [tags (output :tags)]
+    (filter |(tags ($ :tag)) windows)))
+
 (defn manage-start [output]
   (if (output :removed)
     (do
@@ -16,7 +20,8 @@
 (defn create [obj registry]
   (def output @{:obj obj
                 :background (background/create registry)
-                :new true})
+                :new true
+                :tags @{1 true}})
 
   (defn handle-event [event]
     (match event

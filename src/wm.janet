@@ -4,9 +4,17 @@
 (import ./output)
 (import ./seat)
 
-(defn- layout [wm]
-  (def output (first (wm :outputs)))
-  (def windows (filter |(not ($ :float)) (wm :windows)))
+(defn- show-hide [wm]
+  (def all-tags @{})
+  (each output (wm :outputs)
+    (merge-into all-tags (output :tags)))
+  (each window (wm :windows)
+    (if (all-tags (window :tag))
+      (:show (window :obj))
+      (:hide (window :obj)))))
+
+(defn- layout [wm output]
+  (def windows (filter |(not ($ :float)) (output/visible output (wm :windows))))
   (def side-count (- (length windows) 1))
   (def total-w (max 0 (- (output :w) (* 2 ((wm :config) :outer-padding)))))
   (def total-h (max 0 (- (output :h) (* 2 ((wm :config) :outer-padding)))))
@@ -40,7 +48,8 @@
   (map |(seat/manage $ wm) (wm :seats))
   (map |(window/manage $ wm) (wm :windows))
 
-  (layout wm)
+  (map |(layout wm $) (wm :outputs))
+  (show-hide wm)
 
   (map output/manage-finish (wm :outputs))
   (map seat/manage-finish (wm :seats))
@@ -58,6 +67,9 @@
   (put wm :outputs @[])
   (put wm :seats @[])
   (put wm :windows @[])
+  # Windows in rendering order rather than window management order.
+  # The last window in the array is rendered on top.
+  (put wm :render-order @[])
 
   (defn handle-event [event]
     (match event

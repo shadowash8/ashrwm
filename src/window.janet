@@ -74,7 +74,8 @@
 (defn create [obj]
   (def window @{:obj obj
                 :node (:get-node obj)
-                :new true})
+                :new true
+                :tag 1})
 
   (defn handle-event [event]
     (match event

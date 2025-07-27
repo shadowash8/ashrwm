@@ -1,25 +1,45 @@
-(import wayland :as wl)
-
+(import ./output)
 (import ./window)
 (import ./xkb-binding)
 (import ./pointer-binding)
 
-(defn- focus [seat window]
-  (if window
-    (do
-      (:place-top (window :node))
-      (:focus-window (seat :obj) (window :obj)))
-    (:clear-focus (seat :obj)))
-  (put seat :focused window))
+(defn- focus [seat wm window]
+  (defn focus-window [window]
+    (unless (= (seat :focused) window)
+      (:focus-window (seat :obj) (window :obj))
+      (put seat :focused window)
+      (if-let [i (find-index |(= $ window) (wm :render-order))]
+        (array/remove (wm :render-order) i))
+      (array/push (wm :render-order) window)
+      (:place-top (window :node))))
+
+  (defn clear-focus []
+    (when (seat :focused)
+      (:clear-focus (seat :obj))
+      (put seat :focused nil)))
+
+  (when-let [output (seat :focused-output)]
+    (def visible (output/visible output (wm :render-order)))
+    (cond
+      (def fullscreen (last (filter |($ :fullscreen) visible)))
+      (focus-window fullscreen)
+
+      (if window ((output :tags) (window :tag))) (focus-window window)
+
+      (def top-visible (last visible)) (focus-window top-visible)
+
+      (clear-focus))))
 
 (defn- action/target [wm seat dir]
-  (if-let [window (seat :focused)
-           i (assert (index-of window (wm :windows)))]
-    (case dir
-      :next (get (wm :windows) (+ i 1) (first (wm :windows)))
-      :prev (get (wm :windows) (- i 1) (last (wm :windows)))
-      (error "invalid dir"))
-    (first (wm :windows))))
+  (when-let [output (seat :focused-output)]
+    (def visible (output/visible output (wm :windows)))
+    (if-let [window (seat :focused)
+             i (assert (index-of window visible))]
+      (case dir
+        :next (get visible (+ i 1) (first visible))
+        :prev (get visible (- i 1) (last visible))
+        (error "invalid dir"))
+      (first visible))))
 
 (defn- action/spawn [command]
   (fn [wm seat]
@@ -33,7 +53,7 @@
 
 (defn- action/focus [dir]
   (fn [wm seat]
-    (focus seat (action/target wm seat dir))))
+    (focus seat wm (action/target wm seat dir))))
 
 (defn- action/float []
   (fn [wm seat]
@@ -47,11 +67,27 @@
         (window/set-fullscreen window nil)
         (window/set-fullscreen window (seat :focused-output))))))
 
+(defn- action/set-tag [tag]
+  (fn [wm seat]
+    (if-let [window (seat :focused)]
+      (put window :tag tag))))
+
+(defn- action/focus-tag [tag]
+  (fn [wm seat]
+    (if-let [output (seat :focused-output)]
+      (put output :tags @{tag true}))))
+
+(defn- action/toggle-tag [tag]
+  (fn [wm seat]
+    (if-let [output (seat :focused-output)
+             tags (output :tags)]
+      (put tags tag (not (tags tag))))))
+
 (defn- action/move-start []
   (fn [wm seat]
     (unless (seat :op)
       (when-let [window (seat :pointer-target)]
-        (focus seat window)
+        (focus seat wm window)
         (window/set-float window true)
         (:op-start-pointer (seat :obj))
         (put seat :op @{:type :move
@@ -63,7 +99,7 @@
   (fn [wm seat]
     (unless (seat :op)
       (when-let [window (seat :pointer-target)]
-        (focus seat window)
+        (focus seat wm window)
         (window/set-float window true)
         (:op-start-pointer (seat :obj))
         (put seat :op @{:type :resize
@@ -92,23 +128,28 @@
     (xkb-binding/create seat :t {:mod4 true} (action/fullscreen))
     (xkb-binding/create seat :t {:mod4 true :mod1 true} (action/float))
     (pointer-binding/create seat :left {:mod4 :true} (action/move-start) (action/op-end))
-    (pointer-binding/create seat :right {:mod4 :true} (action/resize-start) (action/op-end)))
+    (pointer-binding/create seat :right {:mod4 :true} (action/resize-start) (action/op-end))
+    (loop [i :range [0 10]]
+      (def keysym (keyword i))
+      (xkb-binding/create seat keysym {:mod4 true} (action/focus-tag i))
+      (xkb-binding/create seat keysym {:mod4 true :mod1 true} (action/set-tag i))
+      (xkb-binding/create seat keysym {:mod4 true :mod1 true :shift true} (action/toggle-tag i))))
 
   (if (or (seat :new) (not (seat :focused-output)))
     (put seat :focused-output (first (wm :outputs))))
 
-  (if-let [window (find |($ :new) (wm :windows))]
-    (focus seat window))
+  (focus seat wm nil)
+  (each window (wm :windows)
+    (when (window :new)
+      (focus seat wm window)))
   (if-let [window (seat :window-interaction)]
-    (focus seat window))
-  (if-let [window (seat :focused)]
-    (if (window :closed)
-      (focus seat nil)))
-  (if (not (seat :focused))
-    (focus seat (first (wm :windows))))
+    (focus seat wm window))
 
   (if-let [f (seat :pending-action)]
     (f wm seat))
+
+  # Ensure focus is consistent after action (e.g. may have switched tags)
+  (focus seat wm nil)
 
   (when-let [op (seat :op)]
     (when (= :resize (op :type))
