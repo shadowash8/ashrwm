@@ -45,9 +45,14 @@
 (defn manage [window wm]
   (when (window :new)
     (:use-ssd (window :obj))
-    (set-float window false))
+    (set-float window false)
+    (when-let [seat (first (wm :seats))
+               output (seat :focused-output)]
+      (put window :tag (min-of (keys (output :tags))))))
   (match (window :fullscreen-requested)
-    [:enter] (set-fullscreen window ((first (wm :seats)) :focused-output))
+    [:enter] (if-let [seat (first (wm :seats))
+                      output (seat :focused-output)]
+               (set-fullscreen window output))
     [:enter output] (set-fullscreen window output)
     [:exit] (set-fullscreen window nil)))
 

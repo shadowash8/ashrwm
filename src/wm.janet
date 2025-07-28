@@ -41,19 +41,19 @@
 
 (defn- manage [wm]
   (update wm :outputs |(keep output/manage-start $))
-  (update wm :seats |(keep seat/manage-start $))
   (update wm :windows |(keep window/manage-start $))
+  (update wm :seats |(keep seat/manage-start $))
 
   (map |(output/manage $ wm) (wm :outputs))
-  (map |(seat/manage $ wm) (wm :seats))
   (map |(window/manage $ wm) (wm :windows))
+  (map |(seat/manage $ wm) (wm :seats))
 
   (map |(layout wm $) (wm :outputs))
   (show-hide wm)
 
   (map output/manage-finish (wm :outputs))
-  (map seat/manage-finish (wm :seats))
   (map window/manage-finish (wm :windows))
+  (map seat/manage-finish (wm :seats))
 
   (:manage-finish ((wm :registry) :rwm)))
 
