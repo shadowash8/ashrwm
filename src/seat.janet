@@ -30,6 +30,28 @@
 
       (clear-focus))))
 
+(defn- pointer-move [seat wm window]
+  (unless (seat :op)
+    (focus seat wm window)
+    (window/set-float window true)
+    (:op-start-pointer (seat :obj))
+    (put seat :op @{:type :move
+                    :window window
+                    :start-x (window :x) :start-y (window :y)
+                    :dx 0 :dy 0})))
+
+(defn- pointer-resize [seat wm window edges]
+  (unless (seat :op)
+    (focus seat wm window)
+    (window/set-float window true)
+    (:op-start-pointer (seat :obj))
+    (put seat :op @{:type :resize
+                    :window window
+                    :edges edges
+                    :start-x (window :x) :start-y (window :y)
+                    :start-w (window :w) :start-h (window :h)
+                    :dx 0 :dy 0})))
+
 (defn- action/target [wm seat dir]
   (when-let [output (seat :focused-output)]
     (def visible (output/visible output (wm :windows)))
@@ -83,36 +105,15 @@
              tags (output :tags)]
       (put tags tag (not (tags tag))))))
 
-(defn- action/move-start []
+(defn- action/pointer-move []
   (fn [wm seat]
-    (unless (seat :op)
-      (when-let [window (seat :pointer-target)]
-        (focus seat wm window)
-        (window/set-float window true)
-        (:op-start-pointer (seat :obj))
-        (put seat :op @{:type :move
-                        :window window
-                        :start-x (window :x) :start-y (window :y)
-                        :dx 0 :dy 0})))))
+    (when-let [window (seat :pointer-target)]
+      (:pointer-move seat wm window))))
 
-(defn- action/resize-start []
+(defn- action/pointer-resize []
   (fn [wm seat]
-    (unless (seat :op)
-      (when-let [window (seat :pointer-target)]
-        (focus seat wm window)
-        (window/set-float window true)
-        (:op-start-pointer (seat :obj))
-        (put seat :op @{:type :resize
-                        :window window
-                        :start-x (window :x) :start-y (window :y)
-                        :start-w (window :w) :start-h (window :h)
-                        :dx 0 :dy 0})))))
-
-(defn- action/op-end []
-  (fn [wm seat]
-    (when-let [op (seat :op)]
-      (:op-end (seat :obj))
-      (put seat :op nil))))
+    (when-let [window (seat :pointer-target)]
+      (:pointer-resize seat wm window {:bottom true :left true}))))
 
 (defn manage-start [seat]
   (if (seat :removed)
@@ -127,8 +128,8 @@
     (xkb-binding/create seat :a {:mod4 true} (action/focus :next))
     (xkb-binding/create seat :t {:mod4 true} (action/fullscreen))
     (xkb-binding/create seat :t {:mod4 true :mod1 true} (action/float))
-    (pointer-binding/create seat :left {:mod4 :true} (action/move-start) (action/op-end))
-    (pointer-binding/create seat :right {:mod4 :true} (action/resize-start) (action/op-end))
+    (pointer-binding/create seat :left {:mod4 :true} (action/pointer-move))
+    (pointer-binding/create seat :right {:mod4 :true} (action/pointer-resize))
     (loop [i :range [0 10]]
       (def keysym (keyword i))
       (xkb-binding/create seat keysym {:mod4 true} (action/focus-tag i))
@@ -156,13 +157,17 @@
       # Resize from bottom right corner
       (window/propose-dimensions (op :window) wm
                                  (max 1 (+ (op :start-w) (op :dx)))
-                                 (max 1 (+ (op :start-h) (op :dy)))))))
+                                 (max 1 (+ (op :start-h) (op :dy))))))
+  (when (and (seat :op-release) (seat :op))
+    (:op-end (seat :obj))
+    (put seat :op nil)))
 
 (defn manage-finish [seat]
   (put seat :new nil)
   (put seat :window-interaction nil)
   (put seat :pointer-activity nil)
-  (put seat :pending-action nil))
+  (put seat :pending-action nil)
+  (put seat :op-release nil))
 
 (defn render [seat wm]
   (when-let [op (seat :op)]
@@ -170,6 +175,9 @@
       (window/set-position (op :window) wm
                            (+ (op :start-x) (op :dx))
                            (+ (op :start-y) (op :dy))))))
+
+(def proto @{:pointer-move pointer-move
+             :pointer-resize pointer-resize})
 
 (defn create [obj]
   (def seat @{:obj obj
@@ -183,7 +191,10 @@
       [:pointer-leave] (put seat :pointer-target nil)
       [:pointer-activity] (put seat :pointer-activity true)
       [:window-interaction window] (put seat :window-interaction (:get-user-data window))
-      [:op-delta dx dy] (do (put (seat :op) :dx dx) (put (seat :op) :dy dy))))
+      [:op-delta dx dy] (do (put (seat :op) :dx dx) (put (seat :op) :dy dy))
+      [:op-release] (put seat :op-release true)
+      (error "unreachable")))
 
   (:set-handler obj handle-event)
-  seat)
+  (:set-user-data obj seat)
+  (table/setproto seat proto))

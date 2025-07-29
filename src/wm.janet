@@ -76,11 +76,12 @@
       [:unavailable] (do
                        (print "another window manager is already running")
                        (os/exit 1))
-      [:finished] (error "unreachable")
+      [:finished] (os/exit 0)
       [:manage-start] (manage wm)
       [:render-start] (render wm)
       [:output obj] (array/push (wm :outputs) (output/create obj (wm :registry)))
       [:seat obj] (array/push (wm :seats) (seat/create obj))
-      [:window obj] (array/push (wm :windows) (window/create obj))))
+      [:window obj] (array/push (wm :windows) (window/create obj))
+      (error "unreachable")))
 
   (:set-handler (registry :rwm) handle-event))

@@ -28,7 +28,8 @@
       [:removed] (put output :removed true)
       [:wl-output name] (put output :wl-output ((registry :outputs) name))
       [:position x y] (do (put output :x x) (put output :y y))
-      [:dimensions w h] (do (put output :w w) (put output :h h))))
+      [:dimensions w h] (do (put output :w w) (put output :h h))
+      (error "unreachable")))
 
   (:set-handler obj handle-event)
   (:set-user-data obj output)

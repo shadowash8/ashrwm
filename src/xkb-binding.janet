@@ -7,7 +7,9 @@
 
   (defn handle-event [event]
     (match event
-      [:pressed] (put (binding :seat) :pending-action (binding :action))))
+      [:pressed] (put (binding :seat) :pending-action (binding :action))
+      [:released] (do)
+      (error "unreachable")))
 
   (:set-handler (binding :obj) handle-event)
   (:enable (binding :obj)))

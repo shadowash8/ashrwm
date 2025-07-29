@@ -49,17 +49,23 @@
     (when-let [seat (first (wm :seats))
                output (seat :focused-output)]
       (put window :tag (min-of (keys (output :tags))))))
+
   (match (window :fullscreen-requested)
     [:enter] (if-let [seat (first (wm :seats))
                       output (seat :focused-output)]
                (set-fullscreen window output))
     [:enter output] (set-fullscreen window output)
-    [:exit] (set-fullscreen window nil)))
+    [:exit] (set-fullscreen window nil))
+
+  (when-let [move (window :pointer-move-requested)]
+    (:pointer-move (move :seat) wm window))
+  (when-let [resize (window :pointer-resize-requested)]
+    (:pointer-resize (resize :seat) wm window (resize :edges))))
 
 (defn manage-finish [window]
   (put window :new nil)
-  (put window :move-requested nil)
-  (put window :resize-requested nil)
+  (put window :pointer-move-requested nil)
+  (put window :pointer-resize-requested nil)
   (put window :fullscreen-requested nil))
 
 (defn- set-borders [window status config]
@@ -85,33 +91,25 @@
   (defn handle-event [event]
     (match event
       [:closed] (put window :closed true)
-      [:dimensions-hint min-w min-h max-w max-h]
-      (do
-        (put window :min-w min-w)
-        (put window :min-h min-h)
-        (put window :max-w max-w)
-        (put window :max-h max-h))
-      [:dimensions w h]
-      (do (put window :w w) (put window :h h))
-      [:app-id app-id]
-      (put window :app-id app-id)
-      [:title title]
-      (put window :title title)
-      [:parent parent]
-      (put window :parent (if parent (:get-user-data parent)))
-      [:decoration-hint hint]
-      (put window :decoration-hint hint)
-      [:move-requested seat serial]
-      (put window :move-requested {:seat (:get-user-data seat)
-                                   :serial serial})
-      [:resize-requested seat serial edges]
-      (put window :resize-requested {:seat (:get-user-data seat)
-                                     :serial serial
-                                     :edges edges})
-      [:fullscreen-requested output]
-      (put window :fullscreen-requested [:enter (if output (:get-user-data output))])
-      [:exit-fullscreen-requested]
-      (put window :fullscreen-requested [:exit])))
+      [:dimensions-hint min-w min-h max-w max-h] (do
+                                                   (put window :min-w min-w)
+                                                   (put window :min-h min-h)
+                                                   (put window :max-w max-w)
+                                                   (put window :max-h max-h))
+      [:dimensions w h] (do (put window :w w) (put window :h h))
+      [:app-id app-id] (put window :app-id app-id)
+      [:title title] (put window :title title)
+      [:parent parent] (put window :parent (if parent (:get-user-data parent)))
+      [:decoration-hint hint] (put window :decoration-hint hint)
+      [:pointer-move-requested seat] (put window :pointer-move-requested
+                                          {:seat (:get-user-data seat)})
+      [:pointer-resize-requested seat edges] (put window :pointer-resize-requested
+                                                  {:seat (:get-user-data seat)
+                                                   :edges edges})
+      [:fullscreen-requested output] (put window :fullscreen-requested
+                                          [:enter (if output (:get-user-data output))])
+      [:exit-fullscreen-requested] (put window :fullscreen-requested [:exit])
+      (error "unreachable")))
 
   (:set-handler obj handle-event)
   (:set-user-data obj window)
