@@ -40,6 +40,8 @@
             windows)))
 
 (defn- manage [wm]
+  (update wm :render-order |(->> $ (filter (fn [window] (not (window :closed))))))
+
   (update wm :outputs |(keep output/manage-start $))
   (update wm :windows |(keep window/manage-start $))
   (update wm :seats |(keep seat/manage-start $))
