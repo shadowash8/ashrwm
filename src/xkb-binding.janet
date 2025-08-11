@@ -1,7 +1,9 @@
 (import xkbcommon)
 
-(defn create [seat keysym mods action]
-  (def binding @{:obj (:get-xkb-binding (seat :obj) (xkbcommon/keysym keysym) mods)
+(defn create [wm seat keysym mods action]
+  (def obj (:get-xkb-binding ((wm :registry) :xkb-bindings)
+                             (seat :obj) (xkbcommon/keysym keysym) mods))
+  (def binding @{:obj obj
                  :seat seat
                  :action action})
 

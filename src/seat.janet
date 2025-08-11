@@ -122,19 +122,19 @@
 
 (defn manage [seat wm]
   (when (seat :new)
-    (xkb-binding/create seat :space {:mod4 true :mod1 true} (action/spawn ["foot"]))
-    (xkb-binding/create seat :u {:mod4 true :mod1 true} (action/close))
-    (xkb-binding/create seat :e {:mod4 true} (action/focus :prev))
-    (xkb-binding/create seat :a {:mod4 true} (action/focus :next))
-    (xkb-binding/create seat :t {:mod4 true} (action/fullscreen))
-    (xkb-binding/create seat :t {:mod4 true :mod1 true} (action/float))
+    (xkb-binding/create wm seat :space {:mod4 true :mod1 true} (action/spawn ["foot"]))
+    (xkb-binding/create wm seat :u {:mod4 true :mod1 true} (action/close))
+    (xkb-binding/create wm seat :e {:mod4 true} (action/focus :prev))
+    (xkb-binding/create wm seat :a {:mod4 true} (action/focus :next))
+    (xkb-binding/create wm seat :t {:mod4 true} (action/fullscreen))
+    (xkb-binding/create wm seat :t {:mod4 true :mod1 true} (action/float))
     (pointer-binding/create seat :left {:mod4 :true} (action/pointer-move))
     (pointer-binding/create seat :right {:mod4 :true} (action/pointer-resize))
     (loop [i :range [0 10]]
       (def keysym (keyword i))
-      (xkb-binding/create seat keysym {:mod4 true} (action/focus-tag i))
-      (xkb-binding/create seat keysym {:mod4 true :mod1 true} (action/set-tag i))
-      (xkb-binding/create seat keysym {:mod4 true :mod1 true :shift true} (action/toggle-tag i))))
+      (xkb-binding/create wm seat keysym {:mod4 true} (action/focus-tag i))
+      (xkb-binding/create wm seat keysym {:mod4 true :mod1 true} (action/set-tag i))
+      (xkb-binding/create wm seat keysym {:mod4 true :mod1 true :shift true} (action/toggle-tag i))))
 
   (if (or (seat :new) (not (seat :focused-output)))
     (put seat :focused-output (first (wm :outputs))))
