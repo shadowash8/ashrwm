@@ -1,5 +1,3 @@
-(import wayland :as wl)
-
 (import ./window)
 (import ./output)
 (import ./seat)

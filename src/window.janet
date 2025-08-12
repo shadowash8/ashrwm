@@ -1,5 +1,3 @@
-(import wayland :as wl)
-
 (import ./color)
 
 (defn set-position
