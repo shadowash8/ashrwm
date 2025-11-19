@@ -4,6 +4,11 @@
   (let [tags (output :tags)]
     (filter |(tags ($ :tag)) windows)))
 
+(defn usable-area [output]
+  (if-let [[x y w h] (output :non-exclusive-area)]
+    {:x x :y y :w w :h h}
+    {:x 0 :y 0 :w (output :w) :h (output :h)}))
+
 (defn manage-start [output]
   (if (output :removed)
     (do
@@ -20,8 +25,10 @@
 (defn create [obj registry]
   (def output @{:obj obj
                 :background (background/create registry)
+                :layer-shell (:get-output (registry :layer-shell) obj)
                 :new true
-                :tags @{1 true}})
+                :tags @{1 true}
+                :usable {:x 0 :y 0}})
 
   (defn handle-event [event]
     (match event
@@ -33,4 +40,12 @@
 
   (:set-handler obj handle-event)
   (:set-user-data obj output)
+
+  (defn handle-layer-shell-event [event]
+    (match event
+      [:non-exclusive-area x y w h] (put output :non-exclusive-area [x y w h])
+      (error "unreachable")))
+
+  (:set-handler (output :layer-shell) handle-layer-shell-event)
+
   output)

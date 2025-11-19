@@ -21,6 +21,9 @@
         "river_window_manager_v1"
         (put registry :rwm (:bind obj name interface 1))
 
+        "river_layer_shell_v1"
+        (put registry :layer-shell (:bind obj name interface 1))
+
         "river_xkb_bindings_v1"
         (put registry :xkb-bindings (:bind obj name interface 1))
 

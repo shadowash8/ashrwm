@@ -14,8 +14,9 @@
 (defn- layout [wm output]
   (def windows (filter |(not ($ :float)) (output/visible output (wm :windows))))
   (def side-count (- (length windows) 1))
-  (def total-w (max 0 (- (output :w) (* 2 ((wm :config) :outer-padding)))))
-  (def total-h (max 0 (- (output :h) (* 2 ((wm :config) :outer-padding)))))
+  (def usable (output/usable-area output))
+  (def total-w (max 0 (- (usable :w) (* 2 ((wm :config) :outer-padding)))))
+  (def total-h (max 0 (- (usable :h) (* 2 ((wm :config) :outer-padding)))))
   (def main-w (if (= 0 side-count) total-w (math/round (* total-w ((wm :config) :main-ratio)))))
   (def side-w (- total-w main-w))
   (def side-h (div total-h side-count))
@@ -32,6 +33,8 @@
               (def inner ((wm :config) :inner-padding))
               [(+ x outer inner) (+ y outer inner)
                (- w (* 2 inner)) (- h (* 2 inner))]))
+       (map (fn [[x y w h]]
+              [(+ x (usable :x)) (+ y (usable :y)) w h]))
        (map (fn [window box]
               (window/set-position window wm ;(slice box 0 2))
               (window/propose-dimensions window wm ;(slice box 2 4)))
@@ -80,7 +83,7 @@
       [:manage-start] (manage wm)
       [:render-start] (render wm)
       [:output obj] (array/push (wm :outputs) (output/create obj (wm :registry)))
-      [:seat obj] (array/push (wm :seats) (seat/create obj))
+      [:seat obj] (array/push (wm :seats) (seat/create obj (wm :registry)))
       [:window obj] (array/push (wm :windows) (window/create obj))
       (error "unreachable")))
 

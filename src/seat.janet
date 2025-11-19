@@ -18,17 +18,28 @@
       (:clear-focus (seat :obj))
       (put seat :focused nil)))
 
-  (when-let [output (seat :focused-output)]
-    (def visible (output/visible output (wm :render-order)))
-    (cond
-      (def fullscreen (last (filter |($ :fullscreen) visible)))
-      (focus-window fullscreen)
+  (defn focus-non-layer []
+    (when-let [output (seat :focused-output)]
+      (def visible (output/visible output (wm :render-order)))
+      (cond
+        (def fullscreen (last (filter |($ :fullscreen) visible)))
+        (focus-window fullscreen)
 
-      (if window ((output :tags) (window :tag))) (focus-window window)
+        (if window ((output :tags) (window :tag))) (focus-window window)
 
-      (def top-visible (last visible)) (focus-window top-visible)
+        (def top-visible (last visible)) (focus-window top-visible)
 
-      (clear-focus))))
+        (clear-focus))))
+
+  (case (seat :layer-focus)
+    :exclusive (put seat :focused nil)
+    :non-exclusive (if window
+                     (do
+                       (put seat :layer-focus :none)
+                       (focus-non-layer))
+                     (put seat :focused nil))
+    :none (focus-non-layer)))
+
 
 (defn- pointer-move [seat wm window]
   (unless (seat :op)
@@ -179,8 +190,10 @@
 (def proto @{:pointer-move pointer-move
              :pointer-resize pointer-resize})
 
-(defn create [obj]
+(defn create [obj registry]
   (def seat @{:obj obj
+              :layer-shell (:get-seat (registry :layer-shell) obj)
+              :layer-focus :none
               :new true})
 
   (defn handle-event [event]
@@ -194,7 +207,15 @@
       [:op-delta dx dy] (do (put (seat :op) :dx dx) (put (seat :op) :dy dy))
       [:op-release] (put seat :op-release true)
       (error "unreachable")))
-
   (:set-handler obj handle-event)
   (:set-user-data obj seat)
+
+  (defn handle-layer-shell-event [event]
+    (match event
+      [:focus-exclusive] (put seat :layer-focus :exclusive)
+      [:focus-non-exclusive] (put seat :layer-focus :non-exclusive)
+      [:focus-none] (put seat :layer-focus :none)
+      (error "unreachable")))
+  (:set-handler (seat :layer-shell) handle-layer-shell-event)
+
   (table/setproto seat proto))
