@@ -84,6 +84,16 @@
     (if-let [window (seat :focused)]
       (:close (window :obj)))))
 
+(defn- action/zoom []
+  (fn [wm seat]
+    (when-let [output (seat :focused-output)
+               focused (seat :focused)
+               visible (output/visible output (wm :windows))
+               target (if (= focused (first visible)) (get visible 1) focused)
+               i (assert (index-of target (wm :windows)))]
+      (array/remove (wm :windows) i)
+      (array/insert (wm :windows) 0 target))))
+
 (defn- action/focus [dir]
   (fn [wm seat]
     (focus seat wm (action/target wm seat dir))))
@@ -134,7 +144,9 @@
 (defn manage [seat wm]
   (when (seat :new)
     (xkb-binding/create wm seat :space {:mod4 true :mod1 true} (action/spawn ["foot"]))
+    (xkb-binding/create wm seat :l {:mod4 true} (action/spawn ["fuzzel"]))
     (xkb-binding/create wm seat :u {:mod4 true :mod1 true} (action/close))
+    (xkb-binding/create wm seat :space {:mod4 true} (action/zoom))
     (xkb-binding/create wm seat :e {:mod4 true} (action/focus :prev))
     (xkb-binding/create wm seat :a {:mod4 true} (action/focus :next))
     (xkb-binding/create wm seat :t {:mod4 true} (action/fullscreen))
