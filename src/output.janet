@@ -6,8 +6,8 @@
 
 (defn usable-area [output]
   (if-let [[x y w h] (output :non-exclusive-area)]
-    {:x x :y y :w w :h h}
-    {:x 0 :y 0 :w (output :w) :h (output :h)}))
+    {:x (+ x (output :x)) :y (+ y (output :y)) :w w :h h}
+    {:x (output :x) :y (output :y) :w (output :w) :h (output :h)}))
 
 (defn manage-start [output]
   (if (output :removed)
@@ -17,7 +17,10 @@
     output))
 
 (defn manage [output wm]
-  (background/manage (output :background) output wm))
+  (background/manage (output :background) output wm)
+  (when (output :new)
+    (let [unused (find (fn [tag] (not (find |(($ :tags) tag) (wm :outputs)))) (range 1 10))]
+      (put (output :tags) unused true))))
 
 (defn manage-finish [output]
   (put output :new nil))
@@ -27,7 +30,7 @@
                 :background (background/create registry)
                 :layer-shell (:get-output (registry :layer-shell) obj)
                 :new true
-                :tags @{1 true}
+                :tags @{}
                 :usable {:x 0 :y 0}})
 
   (defn handle-event [event]
