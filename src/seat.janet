@@ -25,7 +25,7 @@
         (def fullscreen (last (filter |($ :fullscreen) visible)))
         (focus-window fullscreen)
 
-        (if window ((output :tags) (window :tag))) (focus-window window)
+        (and window ((output :tags) (window :tag))) (focus-window window)
 
         (def top-visible (last visible)) (focus-window top-visible)
 
