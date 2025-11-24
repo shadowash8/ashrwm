@@ -75,17 +75,17 @@
       (first visible))))
 
 (defn- action/spawn [command]
-  (fn [wm seat]
+  (fn [wm seat binding]
     (ev/spawn
       (os/proc-wait (os/spawn command :p)))))
 
 (defn- action/close []
-  (fn [wm seat]
+  (fn [wm seat binding]
     (if-let [window (seat :focused)]
       (:close (window :obj)))))
 
 (defn- action/zoom []
-  (fn [wm seat]
+  (fn [wm seat binding]
     (when-let [output (seat :focused-output)
                focused (seat :focused)
                visible (output/visible output (wm :windows))
@@ -95,11 +95,11 @@
       (array/insert (wm :windows) 0 target))))
 
 (defn- action/focus [dir]
-  (fn [wm seat]
+  (fn [wm seat binding]
     (focus seat wm (action/target wm seat dir))))
 
 (defn- action/focus-output []
-  (fn [wm seat]
+  (fn [wm seat binding]
     (when-let [focused (seat :focused-output)
                i (assert (index-of focused (wm :outputs)))
                target (or (get (wm :outputs) (+ i 1))
@@ -108,19 +108,19 @@
       (focus seat wm nil))))
 
 (defn- action/float []
-  (fn [wm seat]
+  (fn [wm seat binding]
     (if-let [window (seat :focused)]
       (window/set-float window (not (window :float))))))
 
 (defn- action/fullscreen []
-  (fn [wm seat]
+  (fn [wm seat binding]
     (if-let [window (seat :focused)]
       (if (window :fullscreen)
         (window/set-fullscreen window nil)
         (window/set-fullscreen window (seat :focused-output))))))
 
 (defn- action/set-tag [tag]
-  (fn [wm seat]
+  (fn [wm seat binding]
     (if-let [window (seat :focused)]
       (put window :tag tag))))
 
@@ -131,14 +131,14 @@
         (put (output :tags) tag true)))))
 
 (defn- action/focus-tag [tag]
-  (fn [wm seat]
+  (fn [wm seat binding]
     (when-let [output (seat :focused-output)]
       (map |(put ($ :tags) tag nil) (wm :outputs))
       (put output :tags @{tag true})
       (fallback-tags (wm :outputs)))))
 
 (defn- action/toggle-tag [tag]
-  (fn [wm seat]
+  (fn [wm seat binding]
     (when-let [output (seat :focused-output)]
       (if ((output :tags) tag)
         (put (output :tags) tag nil)
@@ -148,14 +148,25 @@
       (fallback-tags (wm :outputs)))))
 
 (defn- action/pointer-move []
-  (fn [wm seat]
+  (fn [wm seat binding]
     (when-let [window (seat :pointer-target)]
       (:pointer-move seat wm window))))
 
 (defn- action/pointer-resize []
-  (fn [wm seat]
+  (fn [wm seat binding]
     (when-let [window (seat :pointer-target)]
       (:pointer-resize seat wm window {:bottom true :left true}))))
+
+(defn- action/passthrough []
+  (fn [wm seat binding]
+    (put binding :passthrough (not (binding :passthrough)))
+    (def request (if (binding :passthrough) :disable :enable))
+    (each other (seat :xkb-bindings)
+      (unless (= other binding)
+        (request (other :obj))))
+    (each other (seat :pointer-bindings)
+      (unless (= other binding)
+        (request (other :obj))))))
 
 (defn manage-start [seat]
   (if (seat :removed)
@@ -174,6 +185,7 @@
     (xkb-binding/create wm seat :i {:mod4 true} (action/focus-output))
     (xkb-binding/create wm seat :t {:mod4 true} (action/fullscreen))
     (xkb-binding/create wm seat :t {:mod4 true :mod1 true} (action/float))
+    (xkb-binding/create wm seat :p {:mod4 true} (action/passthrough))
     (pointer-binding/create seat :left {:mod4 :true} (action/pointer-move))
     (pointer-binding/create seat :right {:mod4 :true} (action/pointer-resize))
     (for i 1 10
@@ -192,8 +204,8 @@
   (if-let [window (seat :window-interaction)]
     (focus seat wm window))
 
-  (if-let [f (seat :pending-action)]
-    (f wm seat))
+  (when-let [[binding action] (seat :pending-action)]
+    (action wm seat binding))
 
   # Ensure focus is consistent after action (e.g. may have switched tags)
   (focus seat wm nil)
@@ -229,6 +241,8 @@
   (def seat @{:obj obj
               :layer-shell (:get-seat (registry :layer-shell) obj)
               :layer-focus :none
+              :xkb-bindings @[]
+              :pointer-bindings @[]
               :new true})
 
   (defn handle-event [event]
