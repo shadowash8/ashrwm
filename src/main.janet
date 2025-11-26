@@ -12,13 +12,19 @@
                        "../river/protocol/river-layer-shell-v1.xml"
                        "../river/protocol/river-xkb-bindings-v1.xml"]))
 
-(def config @{:background 0xffffff
-              :border-width 2
-              :border-normal 0x9f9f9f
-              :border-focused 0x000000
+(def light @{:background 0xffffff
+             :border-normal 0x9f9f9f
+             :border-focused 0x000000})
+
+(def dark @{:background 0x000000
+            :border-normal 0x646464
+            :border-focused 0xffffff})
+
+(def config @{:border-width 2
               :outer-padding 4
               :inner-padding 4
               :main-ratio 0.60})
+(merge-into config light)
 
 (def wm @{:config config})
 
