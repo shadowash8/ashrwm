@@ -3,13 +3,13 @@
                    :right 0x111
                    :middle 0x112})
 
-(defn create [seat button mods action &opt release-action]
+(defn create [seat button mods action]
   (def binding @{:obj (:get-pointer-binding (seat :obj) (button-code button) mods)})
 
   (defn handle-event [event]
     (match event
       [:pressed] (put seat :pending-action [binding action])
-      [:released] (put seat :pending-action [binding release-action])
+      [:released] (do)
       (error "unreachable")))
 
   (:set-handler (binding :obj) handle-event)
