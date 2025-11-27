@@ -46,7 +46,7 @@
     (set-float window false)
     (when-let [seat (first (wm :seats))
                output (seat :focused-output)]
-      (put window :tag (min-of (keys (output :tags))))))
+      (put window :tag (or 1 (min-of (keys (output :tags)))))))
 
   (match (window :fullscreen-requested)
     [:enter] (if-let [seat (first (wm :seats))

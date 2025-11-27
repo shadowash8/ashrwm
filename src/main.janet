@@ -12,6 +12,7 @@
                        "../river/protocol/river-layer-shell-v1.xml"
                        "../river/protocol/river-xkb-bindings-v1.xml"]))
 
+# https://protesilaos.com/emacs/modus-themes-colors
 (def light @{:background 0xffffff
              :border-normal 0x9f9f9f
              :border-focused 0x000000})
