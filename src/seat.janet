@@ -181,7 +181,7 @@
 
 (defn manage [seat wm]
   (when (seat :new)
-    (xkb-binding/create wm seat :space {:mod4 true :mod1 true} (action/spawn ["foot"]))
+    (xkb-binding/create wm seat :space {:mod4 true :mod1 true} (action/spawn ["footclient"]))
     (xkb-binding/create wm seat :l {:mod4 true} (action/spawn ["fuzzel"]))
     (xkb-binding/create wm seat :u {:mod4 true :mod1 true} (action/close))
     (xkb-binding/create wm seat :space {:mod4 true} (action/zoom))
