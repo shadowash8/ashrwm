@@ -29,6 +29,10 @@
 
 (def wm @{:config config})
 
+# Only main is marshaled when building a standalone executable,
+# so we must capture the REPL environment outside of main.
+(def repl-env (curenv))
+
 (defn main [&]
   (def display (wayland/connect interfaces))
 
@@ -41,6 +45,6 @@
   (wm/init wm registry)
 
   (def repl-server
-    (netrepl/server "127.0.0.1" "9365" (fiber/getenv (fiber/current))))
+    (netrepl/server "127.0.0.1" "9365" repl-env))
 
   (forever (:dispatch display)))
