@@ -47,4 +47,5 @@
   (def repl-server
     (netrepl/server "127.0.0.1" "9365" repl-env))
 
-  (forever (:dispatch display)))
+  (defer (:close repl-server)
+    (forever (:dispatch display))))
