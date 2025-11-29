@@ -261,6 +261,7 @@
       [:pointer-leave] (put seat :pointer-target nil)
       [:pointer-activity] (put seat :pointer-activity true)
       [:window-interaction window] (put seat :window-interaction (:get-user-data window))
+      [:shell-surface-interaction shell_surface] (do)
       [:op-delta dx dy] (do (put (seat :op) :dx dx) (put (seat :op) :dy dy))
       [:op-release] (put seat :op-release true)
       (error "unreachable")))
