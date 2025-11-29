@@ -40,6 +40,9 @@
                      (put seat :focused nil))
     :none (focus-non-layer)))
 
+(defn- focus-output [seat output]
+  (put seat :focused-output output)
+  (:set-default (output :layer-shell)))
 
 (defn- pointer-move [seat wm window]
   (unless (seat :op)
@@ -104,7 +107,7 @@
                i (assert (index-of focused (wm :outputs)))
                target (or (get (wm :outputs) (+ i 1))
                           (first (wm :outputs)))]
-      (put seat :focused-output target)
+      (focus-output seat target)
       (focus seat wm nil))))
 
 (defn- action/float []
@@ -203,7 +206,7 @@
     (xkb-binding/create wm seat :0 {:mod4 true} (action/focus-all-tags)))
 
   (if (or (seat :new) (not (seat :focused-output)))
-    (put seat :focused-output (first (wm :outputs))))
+    (focus-output seat (first (wm :outputs))))
 
   (focus seat wm nil)
   (each window (wm :windows)
