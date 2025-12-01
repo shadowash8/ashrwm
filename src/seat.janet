@@ -6,7 +6,7 @@
 (defn- focus-output [seat output]
   (unless (= output (seat :focused-output))
     (put seat :focused-output output)
-    (:set-default (output :layer-shell))))
+    (when output (:set-default (output :layer-shell)))))
 
 (defn- focus [seat wm window]
   (defn focus-window [window]
@@ -25,7 +25,7 @@
 
   (defn focus-non-layer []
     (when window
-      (when-let [output (window/output window wm)]
+      (when-let [output (window/tag-output window wm)]
         (focus-output seat output)))
     (when-let [output (seat :focused-output)]
       (def visible (output/visible output (wm :render-order)))
@@ -72,7 +72,7 @@
 
 (defn- action/target [wm seat dir]
   (when-let [window (seat :focused)
-             output (window/output window wm)
+             output (window/tag-output window wm)
              visible (output/visible output (wm :windows))
              i (assert (index-of window visible))]
     (case dir
@@ -93,7 +93,7 @@
 (defn- action/zoom []
   (fn [wm seat binding]
     (when-let [focused (seat :focused)
-               output (window/output focused wm)
+               output (window/tag-output focused wm)
                visible (output/visible output (wm :windows))
                target (if (= focused (first visible)) (get visible 1) focused)
                i (assert (index-of target (wm :windows)))]
@@ -123,7 +123,7 @@
     (if-let [window (seat :focused)]
       (if (window :fullscreen)
         (window/set-fullscreen window nil)
-        (window/set-fullscreen window (window/output window wm))))))
+        (window/set-fullscreen window (window/tag-output window wm))))))
 
 (defn- action/set-tag [tag]
   (fn [wm seat binding]
@@ -233,7 +233,7 @@
                                  (max 1 (+ (op :start-h) (op :dy))))))
   (when (and (seat :op-release) (seat :op))
     (:op-end (seat :obj))
-    (window/update-output ((seat :op) :window) wm)
+    (window/update-tag ((seat :op) :window) wm)
     (put seat :op nil)))
 
 (defn manage-finish [seat]

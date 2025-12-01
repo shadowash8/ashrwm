@@ -35,7 +35,7 @@
       (:inform-not-fullscreen (window :obj))
       (:exit-fullscreen (window :obj)))))
 
-(defn output [window wm]
+(defn tag-output [window wm]
   (find |(($ :tags) (window :tag)) (wm :outputs)))
 
 (defn- max-overlap-output [window wm]
@@ -55,9 +55,10 @@
         (set max-overlap-output output))))
   max-overlap-output)
 
-(defn update-output [window wm]
+(defn update-tag [window wm]
   (when-let [output (max-overlap-output window wm)]
-    (put window :tag (or (min-of (keys (output :tags))) 1))))
+    (unless (= output (tag-output window wm))
+      (put window :tag (or (min-of (keys (output :tags))) 1)))))
 
 (defn manage-start [window]
   (if (window :closed)
