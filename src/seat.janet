@@ -234,6 +234,8 @@
   (when (and (seat :op-release) (seat :op))
     (:op-end (seat :obj))
     (window/update-tag ((seat :op) :window) wm)
+    # TODO why do I need this focus-output call here??
+    (focus-output seat (window/tag-output ((seat :op) :window) wm))
     (put seat :op nil)))
 
 (defn manage-finish [seat]
