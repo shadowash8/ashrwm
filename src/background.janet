@@ -14,9 +14,9 @@
   (:destroy buffer))
 
 (defn destroy [bg]
-  (:destroy (bg :surface))
   (:destroy (bg :viewport))
   (:destroy (bg :shell-surface))
+  (:destroy (bg :surface))
   (:destroy (bg :node)))
 
 (defn create [registry]
