@@ -78,8 +78,7 @@
     (case dir
       :next (get visible (+ i 1) (first visible))
       :prev (get visible (- i 1) (last visible))
-      (error "invalid dir"))
-    (first visible)))
+      (error "invalid dir"))))
 
 (defn- action/spawn [command]
   (fn [wm seat binding]
