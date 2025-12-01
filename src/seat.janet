@@ -3,6 +3,11 @@
 (import ./xkb-binding)
 (import ./pointer-binding)
 
+(defn- focus-output [seat output]
+  (unless (= output (seat :focused-output))
+    (put seat :focused-output output)
+    (:set-default (output :layer-shell))))
+
 (defn- focus [seat wm window]
   (defn focus-window [window]
     (unless (= (seat :focused) window)
@@ -19,6 +24,9 @@
       (put seat :focused nil)))
 
   (defn focus-non-layer []
+    (when window
+      (when-let [output (find |(($ :tags) (window :tag)) (wm :outputs))]
+        (focus-output seat output)))
     (when-let [output (seat :focused-output)]
       (def visible (output/visible output (wm :render-order)))
       (cond
@@ -39,10 +47,6 @@
                        (focus-non-layer))
                      (put seat :focused nil))
     :none (focus-non-layer)))
-
-(defn- focus-output [seat output]
-  (put seat :focused-output output)
-  (:set-default (output :layer-shell)))
 
 (defn- pointer-move [seat wm window]
   (unless (seat :op)
