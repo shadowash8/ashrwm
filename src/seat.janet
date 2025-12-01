@@ -25,7 +25,7 @@
 
   (defn focus-non-layer []
     (when window
-      (when-let [output (find |(($ :tags) (window :tag)) (wm :outputs))]
+      (when-let [output (window/output window wm)]
         (focus-output seat output)))
     (when-let [output (seat :focused-output)]
       (def visible (output/visible output (wm :render-order)))
@@ -71,15 +71,15 @@
                     :dx 0 :dy 0})))
 
 (defn- action/target [wm seat dir]
-  (when-let [output (seat :focused-output)]
-    (def visible (output/visible output (wm :windows)))
-    (if-let [window (seat :focused)
+  (when-let [window (seat :focused)
+             output (window/output window wm)
+             visible (output/visible output (wm :windows))
              i (assert (index-of window visible))]
-      (case dir
-        :next (get visible (+ i 1) (first visible))
-        :prev (get visible (- i 1) (last visible))
-        (error "invalid dir"))
-      (first visible))))
+    (case dir
+      :next (get visible (+ i 1) (first visible))
+      :prev (get visible (- i 1) (last visible))
+      (error "invalid dir"))
+    (first visible)))
 
 (defn- action/spawn [command]
   (fn [wm seat binding]
@@ -93,8 +93,8 @@
 
 (defn- action/zoom []
   (fn [wm seat binding]
-    (when-let [output (seat :focused-output)
-               focused (seat :focused)
+    (when-let [focused (seat :focused)
+               output (window/output focused wm)
                visible (output/visible output (wm :windows))
                target (if (= focused (first visible)) (get visible 1) focused)
                i (assert (index-of target (wm :windows)))]
@@ -124,7 +124,7 @@
     (if-let [window (seat :focused)]
       (if (window :fullscreen)
         (window/set-fullscreen window nil)
-        (window/set-fullscreen window (seat :focused-output))))))
+        (window/set-fullscreen window (window/output window wm))))))
 
 (defn- action/set-tag [tag]
   (fn [wm seat binding]
@@ -233,6 +233,7 @@
                                  (max 1 (+ (op :start-h) (op :dy))))))
   (when (and (seat :op-release) (seat :op))
     (:op-end (seat :obj))
+    (window/update-output ((seat :op) :window) wm)
     (put seat :op nil)))
 
 (defn manage-finish [seat]
