@@ -6,7 +6,7 @@
 
 (defn usable-area [output]
   (if-let [[x y w h] (output :non-exclusive-area)]
-    {:x (+ x (output :x)) :y (+ y (output :y)) :w w :h h}
+    {:x x :y y :w w :h h}
     {:x (output :x) :y (output :y) :w (output :w) :h (output :h)}))
 
 (defn manage-start [output]
@@ -30,8 +30,7 @@
                 :background (background/create registry)
                 :layer-shell (:get-output (registry :layer-shell) obj)
                 :new true
-                :tags @{}
-                :usable {:x 0 :y 0}})
+                :tags @{}})
 
   (defn handle-event [event]
     (match event
