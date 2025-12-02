@@ -32,6 +32,12 @@
 # Only main is marshaled when building a standalone executable,
 # so we must capture the REPL environment outside of main.
 (def repl-env (curenv))
+(defn repl-server-create []
+  (def path (string/format "%s/rijan-%s"
+                           (assert (os/getenv "XDG_RUNTIME_DIR"))
+                           (assert (os/getenv "WAYLAND_DISPLAY"))))
+  (os/rm path)
+  (netrepl/server :unix path repl-env))
 
 (defn main [&]
   (def display (wayland/connect interfaces))
@@ -44,8 +50,7 @@
 
   (wm/init wm registry)
 
-  (def repl-server
-    (netrepl/server "127.0.0.1" "9365" repl-env))
+  (def repl-server (repl-server-create))
 
   (defer (:close repl-server)
     (forever (:dispatch display))))
