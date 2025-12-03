@@ -36,7 +36,7 @@
   (def path (string/format "%s/rijan-%s"
                            (assert (os/getenv "XDG_RUNTIME_DIR"))
                            (assert (os/getenv "WAYLAND_DISPLAY"))))
-  (os/rm path)
+  (protect (os/rm path))
   (netrepl/server :unix path repl-env))
 
 (defn main [&]
