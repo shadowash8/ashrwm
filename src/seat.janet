@@ -241,7 +241,6 @@
 (defn manage-finish [seat]
   (put seat :new nil)
   (put seat :window-interaction nil)
-  (put seat :pointer-activity nil)
   (put seat :pending-action nil)
   (put seat :op-release nil))
 
@@ -269,7 +268,6 @@
       [:wl-seat wl-seat] (put seat :wl-seat wl-seat)
       [:pointer-enter window] (put seat :pointer-target (:get-user-data window))
       [:pointer-leave] (put seat :pointer-target nil)
-      [:pointer-activity] (put seat :pointer-activity true)
       [:window-interaction window] (put seat :window-interaction (:get-user-data window))
       [:shell-surface-interaction shell_surface] (do)
       [:op-delta dx dy] (do (put (seat :op) :dx dx) (put (seat :op) :dy dy))
