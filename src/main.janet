@@ -50,6 +50,11 @@
 
   (wm/init wm registry)
 
+  # Do a roundtrip to give the compositor the chance to send the
+  # :unavailable event before creating the repl server and potentially
+  # overwriting the repl socket of an already running rijan instance.
+  (:roundtrip display)
+
   (def repl-server (repl-server-create))
 
   (defer (:close repl-server)
