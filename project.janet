@@ -11,4 +11,6 @@
   :name "rijan"
   :entry "src/main.janet"
   :install true
-  :pkg-config-libs ["wayland-client" "xkbcommon"])
+  :static true
+  :cflags ["-v"]
+  :pkg-config-libs ["wayland-client" "xkbcommon" "libffi"])
