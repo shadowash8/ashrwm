@@ -5,7 +5,13 @@
 (defn- show-hide [wm]
   (def all-tags @{})
   (each output (wm :outputs)
-    (merge-into all-tags (output :tags)))
+    (merge-into all-tags (output :tags))
+    # Ensure the output on which windows are fullscreen is updated
+    # if they become visible on a different output.
+    (each window (wm :windows)
+      (when (and (window :fullscreen)
+                 ((output :tags) (window :tag)))
+        (:fullscreen (window :obj) (output :obj)))))
   (each window (wm :windows)
     (if (all-tags (window :tag))
       (:show (window :obj))
