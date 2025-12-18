@@ -1,0 +1,37 @@
+.{
+    .name = .rijan,
+    .version = "0.0.0",
+    .minimum_zig_version = "0.15.0",
+    .paths = .{""},
+    .dependencies = .{
+        .janet = .{
+            .url = "git+https://codeberg.org/ifreund/zig-janet?ref=main#977e2777b9f0f6fd3531bec3c96c7073b690cbe3",
+            .hash = "janet-1.40.1-3XUN8cVGAAA7Os-UamOhi0sYVRqN-slGltgD5Jwwwfdk",
+        },
+        .janet_wayland = .{
+            .url = "git+https://codeberg.org/ifreund/janet-wayland?ref=main#c118af389f43ac853c5189db4fd5cc430c7a3370",
+            .hash = "N-V-__8AAPOoAACNhl0Pd9muOFuvch4kljaImdQiU6FPr9tY",
+        },
+        .wayland = .{
+            .url = "git+https://github.com/ifreund/wayland-build.zig#8c7f2c42ab0e4c16853d03914ce1f3259cda40db",
+            .hash = "wayland-1.24.0-3-dxEBa1pmAABlHkqXCGmZ4r9c_N8fhAXculLHBbO2pRRT",
+        },
+        .libxkbcommon = .{
+            .url = "git+https://github.com/allyourcodebase/libxkbcommon.git?ref=1.11.0-1#809157d5118909298f3e086fa8d8103198e938fd",
+            .hash = "libxkbcommon-1.11.0-1-93LaF6pwAgDFoaLfOkR8ioG4RVcDHbBhsDmC_rYwyOEG",
+        },
+        .janet_xkbcommon = .{
+            .url = "git+https://codeberg.org/ifreund/janet-xkbcommon?ref=main#bdd15cd20329078e47abb30bddddfb7b28f52f66",
+            .hash = "N-V-__8AAGELAABqy7_LKHe7k7pcmtqO8MJth7xoJZSYvriG",
+        },
+        .spork = .{
+            .url = "git+https://github.com/janet-lang/spork?ref=master#4224d5678ec8bb8777a9075030cf38da52f2d70a",
+            .hash = "N-V-__8AAA3IEACRX8ha9Z5HVJLPzBt9S6Kt7oNfQsWh5vUN",
+        },
+        .lemongrass = .{
+            .url = "git+https://github.com/pyrmont/lemongrass?ref=master#906974b82ba06ed421e0c8cd9a56c6ddc4ca6820",
+            .hash = "N-V-__8AAPMqAQCbXJ9KGZ7pEepOFcJFiLb-PW0LlAOhlgtd",
+        },
+    },
+    .fingerprint = 0x90b2a47407350c41,
+}

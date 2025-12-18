@@ -14,3 +14,10 @@ nonetheless for the capable and adventurous.
 	- Each tag can be displayed on at most one output at a time
 - Floating windows
 - A REPL
+
+## Building
+
+Run `zig build`. All dependencies will be fetched by Zig and built from source,
+producing a statically linked `rijan` binary.
+
+Requires Zig 0.15, a statically linked Zig binary can be obtained from https://ziglang.org/download/.
