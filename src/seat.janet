@@ -98,7 +98,8 @@
                target (if (= focused (first visible)) (get visible 1) focused)
                i (assert (index-of target (wm :windows)))]
       (array/remove (wm :windows) i)
-      (array/insert (wm :windows) 0 target))))
+      (array/insert (wm :windows) 0 target)
+      (focus seat wm (first (wm :windows))))))
 
 (defn- action/focus [dir]
   (fn [wm seat binding]
