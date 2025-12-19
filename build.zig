@@ -6,14 +6,17 @@ pub fn build(b: *Build) !void {
     const optimize = b.standardOptimizeOption(.{});
 
     const janet = b.dependency("janet", .{ .linkage = .dynamic });
-    const janet_static = b.dependency("janet", .{ .linkage = .static });
+    const janet_static = b.dependency("janet", .{
+        .target = target,
+        .optimize = optimize,
+        .linkage = .static,
+    });
 
     const spork = b.dependency("spork", .{});
     const rawterm = b.addLibrary(.{
         .name = "rawterm",
         .root_module = b.createModule(.{
-            .target = target,
-            .optimize = optimize,
+            .target = b.graph.host,
             .link_libc = true,
         }),
         .linkage = .dynamic,
@@ -41,8 +44,7 @@ pub fn build(b: *Build) !void {
     const wayland_native = b.addLibrary(.{
         .name = "wayland-native",
         .root_module = b.createModule(.{
-            .target = target,
-            .optimize = optimize,
+            .target = b.graph.host,
             .link_libc = true,
         }),
         .linkage = .dynamic,
@@ -51,7 +53,11 @@ pub fn build(b: *Build) !void {
     wayland_native.root_module.linkLibrary(janet.artifact("janet"));
     wayland_native.root_module.linkLibrary(wayland.artifact("wayland-client"));
 
-    const wayland_static = b.dependency("wayland", .{ .linkage = .static });
+    const wayland_static = b.dependency("wayland", .{
+        .target = target,
+        .optimize = optimize,
+        .linkage = .static,
+    });
     const wayland_native_static = b.addLibrary(.{
         .name = "wayland-native",
         .root_module = b.createModule(.{
@@ -73,8 +79,7 @@ pub fn build(b: *Build) !void {
     const xkbcommon_native = b.addLibrary(.{
         .name = "xkbcommon-native",
         .root_module = b.createModule(.{
-            .target = target,
-            .optimize = optimize,
+            .target = b.graph.host,
             .link_libc = true,
         }),
         .linkage = .dynamic,
@@ -83,7 +88,11 @@ pub fn build(b: *Build) !void {
     xkbcommon_native.root_module.linkLibrary(janet.artifact("janet"));
     xkbcommon_native.root_module.linkLibrary(xkbcommon.artifact("xkbcommon"));
 
-    const xkbcommon_static = b.dependency("libxkbcommon", .{ .linkage = .static });
+    const xkbcommon_static = b.dependency("libxkbcommon", .{
+        .target = target,
+        .optimize = optimize,
+        .linkage = .static,
+    });
     const xkbcommon_native_static = b.addLibrary(.{
         .name = "xkbcommon-native",
         .root_module = b.createModule(.{
