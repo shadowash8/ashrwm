@@ -272,8 +272,7 @@
       [:window-interaction window] (put seat :window-interaction (:get-user-data window))
       [:shell-surface-interaction shell_surface] (do)
       [:op-delta dx dy] (do (put (seat :op) :dx dx) (put (seat :op) :dy dy))
-      [:op-release] (put seat :op-release true)
-      (error "unreachable")))
+      [:op-release] (put seat :op-release true)))
   (:set-handler obj handle-event)
   (:set-user-data obj seat)
 
@@ -281,8 +280,7 @@
     (match event
       [:focus-exclusive] (put seat :layer-focus :exclusive)
       [:focus-non-exclusive] (put seat :layer-focus :non-exclusive)
-      [:focus-none] (put seat :layer-focus :none)
-      (error "unreachable")))
+      [:focus-none] (put seat :layer-focus :none)))
   (:set-handler (seat :layer-shell) handle-layer-shell-event)
 
   (table/setproto seat proto))

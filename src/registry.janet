@@ -41,9 +41,7 @@
         (if-let [output ((registry :outputs) name)]
           (:release output))
         (if-let [seat ((registry :seats) name)]
-          (:release seat)))
-
-      (error "unreachable")))
+          (:release seat)))))
 
   (:set-handler obj handle-event)
   (:roundtrip display)

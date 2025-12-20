@@ -37,16 +37,14 @@
       [:removed] (put output :removed true)
       [:wl-output name] (put output :wl-output ((registry :outputs) name))
       [:position x y] (do (put output :x x) (put output :y y))
-      [:dimensions w h] (do (put output :w w) (put output :h h))
-      (error "unreachable")))
+      [:dimensions w h] (do (put output :w w) (put output :h h))))
 
   (:set-handler obj handle-event)
   (:set-user-data obj output)
 
   (defn handle-layer-shell-event [event]
     (match event
-      [:non-exclusive-area x y w h] (put output :non-exclusive-area [x y w h])
-      (error "unreachable")))
+      [:non-exclusive-area x y w h] (put output :non-exclusive-area [x y w h])))
 
   (:set-handler (output :layer-shell) handle-layer-shell-event)
 

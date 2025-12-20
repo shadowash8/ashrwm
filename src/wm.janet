@@ -90,7 +90,6 @@
       [:render-start] (render wm)
       [:output obj] (array/push (wm :outputs) (output/create obj (wm :registry)))
       [:seat obj] (array/push (wm :seats) (seat/create obj (wm :registry)))
-      [:window obj] (array/insert (wm :windows) 0 (window/create obj))
-      (error "unreachable")))
+      [:window obj] (array/insert (wm :windows) 0 (window/create obj))))
 
   (:set-handler (registry :rwm) handle-event))

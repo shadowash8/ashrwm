@@ -131,11 +131,7 @@
                                                    :edges edges})
       [:fullscreen-requested output] (put window :fullscreen-requested
                                           [:enter (if output (:get-user-data output))])
-      [:exit-fullscreen-requested] (put window :fullscreen-requested [:exit])
-      [:maximize-requested] (do)
-      [:unmaximize-requested] (do)
-      [:minimize-requested] (do)
-      (error "unreachable")))
+      [:exit-fullscreen-requested] (put window :fullscreen-requested [:exit])))
 
   (:set-handler obj handle-event)
   (:set-user-data obj window)
