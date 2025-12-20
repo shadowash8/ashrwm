@@ -106,8 +106,6 @@ int main(int argc, const char **argv) {
 
 ```))
 
-(print "generating...")
-
 (def [_ main-file image-file out-file & args] (dyn :args))
 
 (def mods @{})
