@@ -1,3 +1,4 @@
+(import protocols)
 (import wayland)
 (import spork/netrepl)
 
@@ -6,11 +7,14 @@
 
 (def interfaces
   (wayland/scan
+    :wayland-xml protocols/wayland-xml
+    :system-protocols-dir protocols/wayland-protocols
     :system-protocols ["stable/viewporter/viewporter.xml"
                        "staging/single-pixel-buffer/single-pixel-buffer-v1.xml"]
-    :custom-protocols ["../river/protocol/river-window-management-v1.xml"
-                       "../river/protocol/river-layer-shell-v1.xml"
-                       "../river/protocol/river-xkb-bindings-v1.xml"]))
+    :custom-protocols (map |(string protocols/river-protocols $)
+                           ["/river-window-management-v1.xml"
+                            "/river-layer-shell-v1.xml"
+                            "/river-xkb-bindings-v1.xml"])))
 
 # https://protesilaos.com/emacs/modus-themes-colors
 (def light @{:background 0xffffff

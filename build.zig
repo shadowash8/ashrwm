@@ -39,6 +39,7 @@ pub fn build(b: *Build) !void {
     });
     rawterm_static.root_module.linkLibrary(janet_static.artifact("janet"));
 
+    const lemongrass = b.dependency("lemongrass", .{});
     const janet_wayland = b.dependency("janet_wayland", .{});
     const wayland = b.dependency("wayland", .{ .linkage = .dynamic });
     const wayland_native = b.addLibrary(.{
@@ -109,38 +110,48 @@ pub fn build(b: *Build) !void {
     xkbcommon_native_static.root_module.linkLibrary(janet_static.artifact("janet"));
     xkbcommon_native_static.root_module.linkLibrary(xkbcommon_static.artifact("xkbcommon"));
 
-    const lemongrass = b.dependency("lemongrass", .{});
+    const gen_protocols = b.addRunArtifact(janet.artifact("janet-bin"));
+    gen_protocols.addFileArg(b.path("build/gen-protocols.janet"));
+    const protocols_image = gen_protocols.addOutputFileArg("protocols.jimage");
+    gen_protocols.addFileArg(wayland.namedLazyPath("wayland-xml"));
+    const wayland_protocols = b.dependency("wayland_protocols", .{});
+    gen_protocols.addDirectoryArg(wayland_protocols.path("."));
+    const river = b.dependency("river", .{});
+    gen_protocols.addDirectoryArg(river.path("protocol"));
 
-    const run = b.addRunArtifact(janet.artifact("janet-bin"));
-    run.addFileArg(b.path("build-helper.janet"));
-    run.addFileArg(b.path("src/main.janet"));
-    const generated = run.addOutputFileArg("main.c");
+    const gen_c = b.addRunArtifact(janet.artifact("janet-bin"));
+    gen_c.addFileArg(b.path("build/gen-c-source.janet"));
+    gen_c.addFileArg(b.path("src/main.janet"));
+    const generated = gen_c.addOutputFileArg("main.c");
 
-    run.addArgs(&.{ "--mod", "wayland" });
-    run.addFileArg(janet_wayland.path("src/wayland.janet"));
+    gen_c.addArgs(&.{ "--image", "protocols" });
+    gen_c.addFileArg(protocols_image);
 
-    run.addArgs(&.{ "--native", "wayland-native", "janet_module_entry_wayland_native" });
-    run.addArtifactArg(wayland_native);
+    gen_c.addArgs(&.{ "--source", "wayland" });
+    gen_c.addFileArg(janet_wayland.path("src/wayland.janet"));
 
-    run.addArgs(&.{ "--mod", "lemongrass" });
-    run.addFileArg(lemongrass.path("init.janet"));
+    gen_c.addArgs(&.{ "--native", "wayland-native", "janet_module_entry_wayland_native" });
+    gen_c.addArtifactArg(wayland_native);
 
-    run.addArgs(&.{ "--mod", "spork/sh" });
-    run.addFileArg(spork.path("spork/sh.janet"));
+    gen_c.addArgs(&.{ "--source", "lemongrass" });
+    gen_c.addFileArg(lemongrass.path("init.janet"));
 
-    run.addArgs(&.{ "--mod", "spork/netrepl" });
-    run.addFileArg(spork.path("spork/netrepl.janet"));
+    gen_c.addArgs(&.{ "--source", "spork/sh" });
+    gen_c.addFileArg(spork.path("spork/sh.janet"));
 
-    run.addArgs(&.{ "--native", "spork/rawterm", "janet_module_entry_rawterm" });
-    run.addArtifactArg(rawterm);
+    gen_c.addArgs(&.{ "--source", "spork/netrepl" });
+    gen_c.addFileArg(spork.path("spork/netrepl.janet"));
 
-    run.addArgs(&.{ "--mod", "xkbcommon" });
-    run.addFileArg(janet_xkbcommon.path("src/xkbcommon.janet"));
+    gen_c.addArgs(&.{ "--native", "spork/rawterm", "janet_module_entry_rawterm" });
+    gen_c.addArtifactArg(rawterm);
 
-    run.addArgs(&.{ "--native", "xkbcommon-native", "janet_module_entry_xkbcommon_native" });
-    run.addArtifactArg(xkbcommon_native);
+    gen_c.addArgs(&.{ "--source", "xkbcommon" });
+    gen_c.addFileArg(janet_xkbcommon.path("src/xkbcommon.janet"));
 
-    b.getInstallStep().dependOn(&run.step);
+    gen_c.addArgs(&.{ "--native", "xkbcommon-native", "janet_module_entry_xkbcommon_native" });
+    gen_c.addArtifactArg(xkbcommon_native);
+
+    b.getInstallStep().dependOn(&gen_c.step);
 
     const rijan = b.addExecutable(.{
         .name = "rijan",

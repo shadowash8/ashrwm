@@ -127,11 +127,16 @@ int main(int argc, const char **argv) {
 (var i 0)
 (while (< i (length args))
   (case (args i)
-    "--mod" (do
-              (def name (args (++ i)))
-              (def path (args (++ i)))
-              (put mods name {:kind :source
-                              :path path}))
+    "--source" (do
+                 (def name (args (++ i)))
+                 (def path (args (++ i)))
+                 (put mods name {:kind :source
+                                 :path path}))
+    "--image" (do
+                (def name (args (++ i)))
+                (def path (args (++ i)))
+                (put mods name {:kind :image
+                                :path path}))
     "--native" (do
                  (def name (args (++ i)))
                  (def entry (args (++ i)))
