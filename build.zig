@@ -161,7 +161,6 @@ pub fn build(b: *Build) !void {
             .optimize = optimize,
             .link_libc = true,
         }),
-        .linkage = .static,
     });
     rijan.addCSourceFile(.{ .file = generated });
     rijan.linkLibrary(janet_static.artifact("janet"));
