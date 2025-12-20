@@ -122,6 +122,7 @@ pub fn build(b: *Build) !void {
     const gen_c = b.addRunArtifact(janet.artifact("janet-bin"));
     gen_c.addFileArg(b.path("build/gen-c-source.janet"));
     gen_c.addFileArg(b.path("src/main.janet"));
+    _ = gen_c.addOutputFileArg("image.jimage");
     const generated = gen_c.addOutputFileArg("main.c");
 
     gen_c.addArgs(&.{ "--image", "protocols" });

@@ -1,28 +1,15 @@
-(defn create-buffer-c
-  ``Inline raw byte file as a c file. The header file will contain two exported symbols, `(string name "_emded")`, a
-    pointer of an array of unsigned char, and `(string name "_embed_size")`, a size_t of the number bytes.``
-  [bytes dest name]
-  (def chunks (seq [b :in bytes] (string b)))
-  (def lasti (- (length bytes) 1))
-  (with [out (file/open dest :wn)]
-    (file/write out "#include <stddef.h>\n\nstatic const unsigned char bytes[] = {")
-    (def buf @"")
-    (eachp [i b] bytes
-      (if (= i lasti)
-        (buffer/push buf (string b))
-        (buffer/push buf (string b) ", "))
-      (when (> 64000 (length buf)) # Don't run out of memory
-        (file/write out buf)
-        (buffer/clear buf)))
-    (file/write out "};\n\n"
-                "const unsigned char * const " name "_embed = bytes;\n"
-                "const size_t " name "_embed_size = sizeof(bytes);\n")))
-
 (defn- make-bin-source
-  [declarations lookup-into-invocations no-core]
+  [image-file declarations lookup-into-invocations no-core]
   (string
     declarations
     ```
+#include <stddef.h>
+static const unsigned char bytes[] = {
+#embed "``` image-file ```"
+};
+const unsigned char * const janet_payload_image_embed = bytes;
+const size_t janet_payload_image_embed_size = sizeof(bytes);
+
 int main(int argc, const char **argv) {
 
 #if defined(JANET_PRF)
@@ -121,7 +108,7 @@ int main(int argc, const char **argv) {
 
 (print "generating...")
 
-(def [_ main-file out-file & args] (dyn :args))
+(def [_ main-file image-file out-file & args] (dyn :args))
 
 (def mods @{})
 (var i 0)
@@ -193,8 +180,7 @@ int main(int argc, const char **argv) {
                         (info :prefix)
                         "\", 0);\n\n")))
 
-(def image (marshal main mdict))
-(create-buffer-c image out-file "janet_payload_image")
-(spit out-file (make-bin-source declarations lookup-into-invocations false) :ab)
+(spit image-file (marshal main mdict))
+(spit out-file (make-bin-source image-file declarations lookup-into-invocations false))
 
 (os/exit 0)
