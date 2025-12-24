@@ -28,15 +28,19 @@
       (when-let [output (window/tag-output window wm)]
         (focus-output seat output)))
     (when-let [output (seat :focused-output)]
+      (defn visible? [w] (and w ((output :tags) (w :tag))))
       (def visible (output/visible output (wm :render-order)))
       (cond
+        # The top fullscreen window always grabs focus when present.
         (def fullscreen (last (filter |($ :fullscreen) visible)))
         (focus-window fullscreen)
-
-        (and window ((output :tags) (window :tag))) (focus-window window)
-
+        # If there is a visible explict target window, focus it.
+        (visible? window) (focus-window window)
+        # Otherwise, don't change focus if the current focus is visible.
+        (visible? (seat :focused)) (do)
+        # When no visible window is focused, focus the top one, if any.
         (def top-visible (last visible)) (focus-window top-visible)
-
+        # When no windows are visible, clear focus.
         (clear-focus))))
 
   (case (seat :layer-focus)
