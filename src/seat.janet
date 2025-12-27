@@ -213,10 +213,12 @@
       (xkb-binding/create wm seat keysym {:mod4 true :mod1 true :shift true} (action/toggle-tag i)))
     (xkb-binding/create wm seat :0 {:mod4 true} (action/focus-all-tags)))
 
+  (when-let [window (seat :focused)]
+    (when (window :closed)
+      (put seat :focused nil)))
   (when-let [op (seat :op)]
     (when ((op :window) :closed)
       (put seat :op nil)))
-
   (if (or (not (seat :focused-output))
           ((seat :focused-output) :removed))
     (focus-output seat (first (wm :outputs))))
