@@ -267,6 +267,8 @@
               :pointer-bindings @[]
               :new true})
 
+  (:set-xcursor-theme obj "Adwaita" 24)
+
   (defn handle-event [event]
     (match event
       [:removed] (put seat :removed true)

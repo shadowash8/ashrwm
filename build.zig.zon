@@ -33,8 +33,8 @@
             .hash = "N-V-__8AAPMqAQCbXJ9KGZ7pEepOFcJFiLb-PW0LlAOhlgtd",
         },
         .river = .{
-            .url = "git+https://codeberg.org/river/river?ref=main#7a431cd9603a2537969fa847ec4f47f54f446897",
-            .hash = "river-0.4.0-dev-_G6NjuvGCQAyZ1pZy6PJ5lvzeSvyXBAaZhPr671hRGC9",
+            .url = "git+https://codeberg.org/river/river?ref=main#0ad1a8fa0bdabc9c73013d0102f3136e346355c5",
+            .hash = "river-0.4.0-dev-_G6NjnrjCQC0Zi7_CzoeOEkyp733JglzODl4vT5KuCLR",
         },
         .wayland_protocols = .{
             .url = "git+https://gitlab.freedesktop.org/wayland/wayland-protocols?ref=1.47#88223018d1b578d0d8869866da66d9608e05f928",
