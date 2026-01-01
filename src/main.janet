@@ -2,7 +2,6 @@
 (import wayland)
 (import spork/netrepl)
 
-(import ./registry)
 (import ./wm)
 
 (def interfaces
@@ -33,6 +32,34 @@
 
 (def wm @{:config config})
 
+(def registry @{:outputs @{}
+                :seats @{}})
+
+(defn registry/handle-event [event]
+  (def obj (registry :obj))
+  (match event
+    # XXX check advertised versions
+    [:global name interface version]
+    (case interface
+      # need 4 for attach-buffer
+      "wl_compositor" (put registry :compositor (:bind obj name interface 4))
+      "wp_viewporter" (put registry :viewporter (:bind obj name interface 1))
+      "wp_single_pixel_buffer_manager_v1" (put registry :single-pixel (:bind obj name interface 1))
+      "river_window_manager_v1" (put registry :rwm (:bind obj name interface 2))
+      "river_layer_shell_v1" (put registry :layer-shell (:bind obj name interface 1))
+      "river_xkb_bindings_v1" (put registry :xkb-bindings (:bind obj name interface 1))
+      # need 4 for release
+      "wl_output" (put (registry :outputs) name (:bind obj name interface 4))
+      # need 5 for release
+      "wl_seat" (put (registry :seats) name (:bind obj name interface 5)))
+    # XXX remove from wm outputs and seats arrays
+    [:global-remove name]
+    (do
+      (if-let [output ((registry :outputs) name)]
+        (:release output))
+      (if-let [seat ((registry :seats) name)]
+        (:release seat)))))
+
 # Only main is marshaled when building a standalone executable,
 # so we must capture the REPL environment outside of main.
 (def repl-env (curenv))
@@ -50,7 +77,9 @@
   # It only matters if it's set when the display is created.
   (os/setenv "WAYLAND_DEBUG" nil)
 
-  (def registry (registry/create display))
+  (put registry :obj (:get-registry display))
+  (:set-handler (registry :obj) registry/handle-event)
+  (:roundtrip display)
 
   (wm/init wm registry)
 
