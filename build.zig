@@ -121,11 +121,11 @@ pub fn build(b: *Build) !void {
 
     const gen_c = b.addRunArtifact(janet.artifact("janet-bin"));
     // This is necessary to re-run every build to ensure changes to
-    // janet files in src other than main.janet are picked up.
+    // janet files in src other than rijan.janet are picked up.
     // TODO better integrate into the zig build cache.
     gen_c.has_side_effects = true;
     gen_c.addFileArg(b.path("build/gen-c-source.janet"));
-    gen_c.addFileArg(b.path("src/main.janet"));
+    gen_c.addFileArg(b.path("rijan.janet"));
     _ = gen_c.addOutputFileArg("image.jimage");
     const generated = gen_c.addOutputFileArg("main.c");
 

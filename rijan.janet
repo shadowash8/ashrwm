@@ -2,7 +2,7 @@
 (import wayland)
 (import spork/netrepl)
 
-(import ./wm)
+(import ./src/wm)
 
 (def interfaces
   (wayland/scan
