@@ -2,8 +2,12 @@
 
 A window manager for the [river](https://codeberg.org/river/river) Wayland compositor.
 
-Not intended to be used by anyone but me currently, but might be useful
-nonetheless for the capable and adventurous.
+Rijan is currently less than 600 lines of code but capable enough to use as my
+daily driver. It's not really intended for use by anyone else but may be an
+interesting starting point for others to fork off their own window manager.
+
+I'm not interested in feature requests for this project, but bug reports are
+always welcome!
 
 ## Features
 
