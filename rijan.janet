@@ -660,14 +660,19 @@
   (protect (os/rm path))
   (netrepl/server :unix path repl-env))
 
-(defn main [_ init &]
+(defn main [& args]
   (def display (wayland/connect interfaces))
 
   # Avoid passing WAYLAND_DEBUG on to our children.
   # It only matters if it's set when the display is created.
   (os/setenv "WAYLAND_DEBUG" nil)
 
-  (dofile init :env repl-env)
+  (def config-dir (or (os/getenv "XDG_CONFIG_HOME")
+                      (string (os/getenv "HOME") "/.config")))
+  (def init-path (get 1 args (string config-dir "/rijan/init.janet")))
+  (when-let [init (file/open init-path :r)]
+    (dofile init :env repl-env)
+    (file/close init))
 
   (put registry :obj (:get-registry display))
   (:set-handler (registry :obj) registry/handle-event)
