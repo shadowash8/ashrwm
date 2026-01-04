@@ -39,8 +39,7 @@
           # The last window in the array is rendered on top.
           :render-order @[]})
 
-(def registry @{:outputs @{}
-                :seats @{}})
+(def registry @{})
 
 (defn rgb-to-u32-rgba [rgb]
   [(* (band 0xff (brushift rgb 16)) (/ 0xffff_ffff 0xff))
@@ -110,7 +109,6 @@
   (defn output/handle-event [event]
     (match event
       [:removed] (put output :removed true)
-      [:wl-output name] (put output :wl-output ((registry :outputs) name))
       [:position x y] (do (put output :x x) (put output :y y))
       [:dimensions w h] (do (put output :w w) (put output :h h))))
   (defn output/handle-layer-shell-event [event]
@@ -415,7 +413,6 @@
   (defn seat/handle-event [event]
     (match event
       [:removed] (put seat :removed true)
-      [:wl-seat wl-seat] (put seat :wl-seat wl-seat)
       [:pointer-enter window] (put seat :pointer-target (:get-user-data window))
       [:pointer-leave] (put seat :pointer-target nil)
       [:window-interaction window] (put seat :window-interaction (:get-user-data window))
@@ -517,7 +514,6 @@
 (defn registry/handle-event [event]
   (def obj (registry :obj))
   (match event
-    # XXX check advertised versions
     [:global name interface version]
     (case interface
       # need 4 for attach-buffer
@@ -526,18 +522,7 @@
       "wp_single_pixel_buffer_manager_v1" (put registry :single-pixel (:bind obj name interface 1))
       "river_window_manager_v1" (put registry :rwm (:bind obj name interface 2))
       "river_layer_shell_v1" (put registry :layer-shell (:bind obj name interface 1))
-      "river_xkb_bindings_v1" (put registry :xkb-bindings (:bind obj name interface 1))
-      # need 4 for release
-      "wl_output" (put (registry :outputs) name (:bind obj name interface 4))
-      # need 5 for release
-      "wl_seat" (put (registry :seats) name (:bind obj name interface 5)))
-    # XXX remove from wm outputs and seats arrays
-    [:global-remove name]
-    (do
-      (if-let [output ((registry :outputs) name)]
-        (:release output))
-      (if-let [seat ((registry :seats) name)]
-        (:release seat)))))
+      "river_xkb_bindings_v1" (put registry :xkb-bindings (:bind obj name interface 1)))))
 
 (defn action/target [seat dir]
   (when-let [window (seat :focused)
