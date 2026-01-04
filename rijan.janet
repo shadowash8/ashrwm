@@ -14,6 +14,14 @@
                             "/river-layer-shell-v1.xml"
                             "/river-xkb-bindings-v1.xml"])))
 
+(def required-interfaces
+  @{"wl_compositor" 4
+    "wp_viewporter" 1
+    "wp_single_pixel_buffer_manager_v1" 1
+    "river_window_manager_v1" 2
+    "river_layer_shell_v1" 1
+    "river_xkb_bindings_v1" 1})
+
 # https://protesilaos.com/emacs/modus-themes-colors
 (def light @{:background 0xffffff
              :border-normal 0x9f9f9f
@@ -52,7 +60,7 @@
   (:place-bottom (bg :node))
   (:set-position (bg :node) (output :x) (output :y))
   (def buffer (:create-u32-rgba-buffer
-                (registry :single-pixel)
+                (registry "wp_single_pixel_buffer_manager_v1")
                 ;(rgb-to-u32-rgba ((wm :config) :background))))
   (:attach (bg :surface) buffer 0 0)
   (:damage-buffer (bg :surface) 0 0 0x7fff_ffff 0x7fff_ffff)
@@ -67,9 +75,9 @@
   (:destroy (bg :node)))
 
 (defn bg/create []
-  (def surface (:create-surface (registry :compositor)))
-  (def viewport (:get-viewport (registry :viewporter) surface))
-  (def shell-surface (:get-shell-surface (registry :rwm) surface))
+  (def surface (:create-surface (registry "wl_compositor")))
+  (def viewport (:get-viewport (registry "wp_viewporter") surface))
+  (def shell-surface (:get-shell-surface (registry "river_window_manager_v1") surface))
   @{:surface surface
     :viewport viewport
     :shell-surface shell-surface
@@ -103,7 +111,7 @@
 (defn output/create [obj]
   (def output @{:obj obj
                 :bg (bg/create)
-                :layer-shell (:get-output (registry :layer-shell) obj)
+                :layer-shell (:get-output (registry "river_layer_shell_v1") obj)
                 :new true
                 :tags @{}})
   (defn output/handle-event [event]
@@ -266,7 +274,7 @@
   (array/push (seat :pointer-bindings) binding))
 
 (defn xkb-binding/create [seat keysym mods action]
-  (def binding @{:obj (:get-xkb-binding (registry :xkb-bindings)
+  (def binding @{:obj (:get-xkb-binding (registry "river_xkb_bindings_v1")
                                         (seat :obj) (xkbcommon/keysym keysym) mods)})
   (defn handle-event [event]
     (match event
@@ -405,7 +413,7 @@
 
 (defn seat/create [obj]
   (def seat @{:obj obj
-              :layer-shell (:get-seat (registry :layer-shell) obj)
+              :layer-shell (:get-seat (registry "river_layer_shell_v1") obj)
               :layer-focus :none
               :xkb-bindings @[]
               :pointer-bindings @[]
@@ -492,12 +500,12 @@
   (map window/manage-finish (wm :windows))
   (map seat/manage-finish (wm :seats))
 
-  (:manage-finish (registry :rwm)))
+  (:manage-finish (registry "river_window_manager_v1")))
 
 (defn wm/render []
   (map window/render (wm :windows))
   (map seat/render (wm :seats))
-  (:render-finish (registry :rwm)))
+  (:render-finish (registry "river_window_manager_v1")))
 
 (defn wm/handle-event [event]
   (match event
@@ -515,14 +523,11 @@
   (def obj (registry :obj))
   (match event
     [:global name interface version]
-    (case interface
-      # need 4 for attach-buffer
-      "wl_compositor" (put registry :compositor (:bind obj name interface 4))
-      "wp_viewporter" (put registry :viewporter (:bind obj name interface 1))
-      "wp_single_pixel_buffer_manager_v1" (put registry :single-pixel (:bind obj name interface 1))
-      "river_window_manager_v1" (put registry :rwm (:bind obj name interface 2))
-      "river_layer_shell_v1" (put registry :layer-shell (:bind obj name interface 1))
-      "river_xkb_bindings_v1" (put registry :xkb-bindings (:bind obj name interface 1)))))
+    (when-let [required-version (get required-interfaces interface)]
+      (when (< version required-version)
+        (errorf "wayland compositor supported %s version too old (need %d, got %d)"
+                interface required-version version))
+      (put registry interface (:bind (registry :obj) name interface required-version)))))
 
 (defn action/target [seat dir]
   (when-let [window (seat :focused)
@@ -662,8 +667,11 @@
   (put registry :obj (:get-registry display))
   (:set-handler (registry :obj) registry/handle-event)
   (:roundtrip display)
+  (eachk i required-interfaces
+    (unless (get registry i)
+      (errorf "wayland compositor does not support %s" i)))
 
-  (:set-handler (registry :rwm) wm/handle-event)
+  (:set-handler (registry "river_window_manager_v1") wm/handle-event)
 
   # Do a roundtrip to give the compositor the chance to send the
   # :unavailable event before creating the repl server and potentially
