@@ -195,7 +195,7 @@
 (defn window/manage [window]
   (when (window :new)
     (:use-ssd (window :obj))
-    (window/set-float window false)
+    (window/set-float window (truthy? (window :parent)))
     (when-let [seat (first (wm :seats))
                output (seat :focused-output)]
       (put window :tag (or (min-of (keys (output :tags))) 1))))
