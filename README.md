@@ -27,6 +27,10 @@ Requires Zig 0.15, a statically linked Zig binary can be obtained from https://z
 
 ## Usage
 
+Run rijan inside [river](https://codeberg.org/river/river). Requires river's
+main branch (version 0.4.0-dev). It may be useful to start rijan from river's
+init script.
+
 On startup rijan will evaluate `$XDG_CONFIG_HOME/rijan/init.janet` if the file
 exists. If `$XDG_CONFIG_HOME` is not set, `~/.config/rijan/init.janet` will be
 tried instead.
