@@ -195,10 +195,16 @@
 (defn window/manage [window]
   (when (window :new)
     (:use-ssd (window :obj))
-    (window/set-float window (truthy? (window :parent)))
-    (when-let [seat (first (wm :seats))
-               output (seat :focused-output)]
-      (put window :tag (or (min-of (keys (output :tags))) 1))))
+    (if-let [parent (window :parent)]
+      (do
+        (window/set-float window true)
+        (put window :tag (parent :tag))
+        (:propose-dimensions (window :obj) 0 0))
+      (do
+        (window/set-float window false)
+        (when-let [seat (first (wm :seats))
+                   output (seat :focused-output)]
+          (put window :tag (or (min-of (keys (output :tags))) 1))))))
   (match (window :fullscreen-requested)
     [:enter] (if-let [seat (first (wm :seats))
                       output (seat :focused-output)]
@@ -226,6 +232,14 @@
                 ;(rgb-to-u32-rgba rgb)))
 
 (defn window/render [window]
+  (when (and (not (window :x)) (window :w))
+    # Windows that start with a parent have nil x/y until rijan receives
+    # a dimensions event and a render sequence is completed.
+    (if-let [output (window/max-overlap-output (window :parent))]
+      (window/set-position window
+                           (div (- (output :w) (window :w)) 2)
+                           (div (- (output :h) (window :h)) 2))
+      (window/set-position window 0 0)))
   (if (find |(= ($ :focused) window) (wm :seats))
     (set-borders window :focused (wm :config))
     (set-borders window :normal (wm :config))))
