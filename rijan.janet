@@ -237,8 +237,8 @@
     # a dimensions event and a render sequence is completed.
     (if-let [output (window/max-overlap-output (window :parent))]
       (window/set-position window
-                           (div (- (output :w) (window :w)) 2)
-                           (div (- (output :h) (window :h)) 2))
+                           (+ (output :x) (div (- (output :w) (window :w)) 2))
+                           (+ (output :y) (div (- (output :h) (window :h)) 2)))
       (window/set-position window 0 0)))
   (if (find |(= ($ :focused) window) (wm :seats))
     (set-borders window :focused (wm :config))
