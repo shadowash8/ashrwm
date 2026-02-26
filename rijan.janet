@@ -310,7 +310,9 @@
 
 (defn window/manage-start [window]
   (if (window :closed)
-    (:destroy (window :obj))
+    (do
+      (:destroy (window :obj))
+      (:destroy (window :node)))
     window))
 
 (defn window/manage [window]
