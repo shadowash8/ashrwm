@@ -1,6 +1,6 @@
 (array/push
   (config :xkb-bindings)
-  [:space {:mod4 true :mod1 true} (action/spawn ["footclient"])]
+  [:space {:mod4 true :mod1 true} (action/spawn ["foot"])]
   [:l {:mod4 true} (action/spawn ["fuzzel"])]
   [:u {:mod4 true :mod1 true} (action/close)]
   [:space {:mod4 true} (action/zoom)]
@@ -12,6 +12,7 @@
   [:t {:mod4 true :mod1 true} (action/float)]
   [:p {:mod4 true} (action/spawn ["sh" "-c" "grim -g \"$(slurp)\" - | wl-copy"])]
   [:Escape {:mod4 true :mod1 true :shift true :ctrl true} (action/passthrough)]
+  [:BackSpace {:mod4 true :mod1 true :shift true :ctrl true} (action/exit-session)]
   [:0 {:mod4 true} (action/focus-all-tags)])
 
 (for i 1 10

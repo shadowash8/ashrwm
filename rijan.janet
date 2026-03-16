@@ -18,7 +18,7 @@
   @{"wl_compositor" 4
     "wp_viewporter" 1
     "wp_single_pixel_buffer_manager_v1" 1
-    "river_window_manager_v1" 2
+    "river_window_manager_v1" 4
     "river_layer_shell_v1" 1
     "river_xkb_bindings_v1" 1})
 
@@ -655,6 +655,10 @@
     (each other (seat :pointer-bindings)
       (unless (= other binding)
         (request (other :obj))))))
+
+(defn action/exit-session []
+  (fn [seat binding]
+    (:exit-session (registry "river_window_manager_v1"))))
 
 # Only main is marshaled when building a standalone executable,
 # so we must capture the REPL environment outside of main.
