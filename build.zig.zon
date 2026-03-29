@@ -1,5 +1,5 @@
 .{
-    .name = .rijan,
+    .name = .ashrwm,
     .version = "0.0.0",
     .minimum_zig_version = "0.15.0",
     .paths = .{""},
@@ -41,5 +41,5 @@
             .hash = "N-V-__8AAFdWDwA0ktbNUi9pFBHCRN4weXIgIfCrVjfGxqgA",
         },
     },
-    .fingerprint = 0x90b2a47407350c41,
+    .fingerprint = 0x36827645a282a823,
 }

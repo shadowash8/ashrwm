@@ -357,7 +357,7 @@
 
 (defn window/render [window]
   (when (and (not (window :x)) (window :w))
-    # Windows that start with a parent have nil x/y until rijan receives
+    # Windows that start with a parent have nil x/y until ashrwm receives
     # a dimensions event and a render sequence is completed.
     (if-let [output (window/max-overlap-output (window :parent))]
       (window/set-position window
@@ -665,7 +665,7 @@
 # so we must capture the REPL environment outside of main.
 (def repl-env (curenv))
 (defn repl-server-create []
-  (def path (string/format "%s/rijan-%s"
+  (def path (string/format "%s/ashrwm-%s"
                            (assert (os/getenv "XDG_RUNTIME_DIR"))
                            (assert (os/getenv "WAYLAND_DISPLAY"))))
   (protect (os/rm path))
@@ -680,7 +680,7 @@
 
   (def config-dir (or (os/getenv "XDG_CONFIG_HOME")
                       (string (os/getenv "HOME") "/.config")))
-  (def init-path (get 1 args (string config-dir "/rijan/init.janet")))
+  (def init-path (get 1 args (string config-dir "/ashrwm/init.janet")))
   (when-let [init (file/open init-path :r)]
     (dofile init :env repl-env)
     (file/close init))
@@ -696,7 +696,7 @@
 
   # Do a roundtrip to give the compositor the chance to send the
   # :unavailable event before creating the repl server and potentially
-  # overwriting the repl socket of an already running rijan instance.
+  # overwriting the repl socket of an already running ashrwm instance.
   (:roundtrip display)
 
   (def repl-server (repl-server-create))

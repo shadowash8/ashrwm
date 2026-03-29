@@ -1,14 +1,9 @@
-# rijan
+# ashrwm
 
 A window manager for the [river](https://codeberg.org/river/river) Wayland compositor.
 
-Rijan is currently less than 600 lines of [Janet](https://janet-lang.org) but
-capable enough to use as my daily driver. It's not really intended for use by
-anyone else but may be an interesting starting point for others to fork off
-their own window manager.
-
-I'm not interested in feature requests for this project, but bug reports are
-always welcome!
+ashrwm is currently around 700 lines of [Janet](https://janet-lang.org) but
+capable enough to use as my daily driver. 
 
 ## Features
 
@@ -30,14 +25,17 @@ Requires Zig 0.15, a statically linked Zig binary can be obtained from https://z
 
 ## Usage
 
-Run rijan inside [river](https://codeberg.org/river/river). Requires river's
-main branch (version 0.4.0-dev). It may be useful to start rijan from river's
+Run ashrwm inside [river](https://codeberg.org/river/river). Requires river's
+main branch (version 0.4.0-dev). It may be useful to start ashrwm from river's
 init script.
 
-On startup rijan will evaluate `$XDG_CONFIG_HOME/rijan/init.janet` if the file
-exists. If `$XDG_CONFIG_HOME` is not set, `~/.config/rijan/init.janet` will be
+On startup ashrwm will evaluate `$XDG_CONFIG_HOME/ashrwm/init.janet` if the file
+exists. If `$XDG_CONFIG_HOME` is not set, `~/.config/ashrwm/init.janet` will be
 tried instead.
 
-Passing a file to rijan as an argument will evaluate that file instead.
+Passing a file to ashrwm as an argument will evaluate that file instead.
 
 See [example/init.janet](example/init.janet).
+
+## credits
+ashrwm is a fork of [rijan](https://codeberg.org/ifreund/rijan)

@@ -121,11 +121,11 @@ pub fn build(b: *Build) !void {
 
     const gen_c = b.addRunArtifact(janet.artifact("janet-bin"));
     // This is necessary to re-run every build to ensure changes to
-    // janet files in src other than rijan.janet are picked up.
+    // janet files in src other than ashrwm.janet are picked up.
     // TODO better integrate into the zig build cache.
     gen_c.has_side_effects = true;
     gen_c.addFileArg(b.path("build/gen-c-source.janet"));
-    gen_c.addFileArg(b.path("rijan.janet"));
+    gen_c.addFileArg(b.path("ashrwm.janet"));
     _ = gen_c.addOutputFileArg("image.jimage");
     const generated = gen_c.addOutputFileArg("main.c");
 
@@ -158,19 +158,19 @@ pub fn build(b: *Build) !void {
 
     b.getInstallStep().dependOn(&gen_c.step);
 
-    const rijan = b.addExecutable(.{
-        .name = "rijan",
+    const ashrwm = b.addExecutable(.{
+        .name = "ashrwm",
         .root_module = b.createModule(.{
             .target = target,
             .optimize = optimize,
             .link_libc = true,
         }),
     });
-    rijan.addCSourceFile(.{ .file = generated });
-    rijan.linkLibrary(janet_static.artifact("janet"));
-    rijan.linkLibrary(wayland_native_static);
-    rijan.linkLibrary(rawterm_static);
-    rijan.linkLibrary(xkbcommon_native_static);
+    ashrwm.addCSourceFile(.{ .file = generated });
+    ashrwm.linkLibrary(janet_static.artifact("janet"));
+    ashrwm.linkLibrary(wayland_native_static);
+    ashrwm.linkLibrary(rawterm_static);
+    ashrwm.linkLibrary(xkbcommon_native_static);
 
-    b.installArtifact(rijan);
+    b.installArtifact(ashrwm);
 }
