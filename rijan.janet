@@ -37,7 +37,7 @@
               :main-ratio 0.60
               :xkb-bindings @[]
               :pointer-bindings @[]})
-(merge-into config light)
+(merge-into config dark)
 
 (def wm @{:config config
           :outputs @[]
@@ -56,17 +56,18 @@
    0xffff_ffff])
 
 (defn bg/manage [bg output]
-  (:sync-next-commit (bg :shell-surface))
-  (:place-bottom (bg :node))
-  (:set-position (bg :node) (output :x) (output :y))
-  (def buffer (:create-u32-rgba-buffer
-                (registry "wp_single_pixel_buffer_manager_v1")
-                ;(rgb-to-u32-rgba ((wm :config) :background))))
-  (:attach (bg :surface) buffer 0 0)
-  (:damage-buffer (bg :surface) 0 0 0x7fff_ffff 0x7fff_ffff)
-  (:set-destination (bg :viewport) (output :w) (output :h))
-  (:commit (bg :surface))
-  (:destroy buffer))
+  (when ((wm :config) :background)
+    (:sync-next-commit (bg :shell-surface))
+    (:place-bottom (bg :node))
+    (:set-position (bg :node) (output :x) (output :y))
+    (def buffer (:create-u32-rgba-buffer
+                  (registry "wp_single_pixel_buffer_manager_v1")
+                  ;(rgb-to-u32-rgba ((wm :config) :background))))
+    (:attach (bg :surface) buffer 0 0)
+    (:damage-buffer (bg :surface) 0 0 0x7fff_ffff 0x7fff_ffff)
+    (:set-destination (bg :viewport) (output :w) (output :h))
+    (:commit (bg :surface))
+    (:destroy buffer)))
 
 (defn bg/destroy [bg]
   (:destroy (bg :viewport))
