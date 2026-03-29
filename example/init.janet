@@ -1,3 +1,6 @@
+# to disable default background color
+# (put config :background nil)
+
 (array/push
   (config :xkb-bindings)
   [:space {:mod4 true :mod1 true} (action/spawn ["foot"])]
