@@ -147,9 +147,10 @@
                        (max 1 (- h (* 2 border-width)))))
 
 (defn window/set-float [window float]
-  (if float
-    (:set-tiled (window :obj) {})
-    (:set-tiled (window :obj) {:left true :bottom :true :top :true :right true}))
+  (unless (= (window :tag) :sticky)
+    (if float
+      (:set-tiled (window :obj) {})
+      (:set-tiled (window :obj) {:left true :bottom :true :top :true :right true})))
   (put window :float float))
 
 (defn window/set-fullscreen [window fullscreen-output]
@@ -254,7 +255,8 @@
       (if-let [i (find-index |(= $ window) (wm :render-order))]
         (array/remove (wm :render-order) i))
       (array/push (wm :render-order) window)
-      (:place-top (window :node))))
+      (unless (= (window :tag) :sticky)
+        (:place-top (window :node)))))
   (defn clear-focus []
     (when (seat :focused)
       (:clear-focus (seat :obj))
@@ -290,7 +292,8 @@
 (defn seat/pointer-move [seat window]
   (unless (seat :op)
     (seat/focus seat window)
-    (window/set-float window true)
+    (unless (= (window :tag) :sticky)
+      (window/set-float window true))
     (:op-start-pointer (seat :obj))
     (put seat :op @{:type :move
                     :window window
@@ -300,7 +303,8 @@
 (defn seat/pointer-resize [seat window edges]
   (unless (seat :op)
     (seat/focus seat window)
-    (window/set-float window true)
+    (unless (= (window :tag) :sticky)
+      (window/set-float window true))
     (:op-start-pointer (seat :obj))
     (put seat :op @{:type :resize
                     :window window
@@ -356,6 +360,8 @@
                 ;(rgb-to-u32-rgba rgb)))
 
 (defn window/render [window]
+  (when (= (window :tag) :sticky)
+    (:place-top (window :node)))
   (when (and (not (window :x)) (window :w))
     # Windows that start with a parent have nil x/y until ashrwm receives
     # a dimensions event and a render sequence is completed.
@@ -466,7 +472,8 @@
                  ((output :tags) (window :tag)))
         (:fullscreen (window :obj) (output :obj)))))
   (each window (wm :windows)
-    (if (all-tags (window :tag))
+    (if (or (= (window :tag) :sticky)
+            (all-tags (window :tag)))
       (:show (window :obj))
       (:hide (window :obj)))))
 
@@ -593,7 +600,8 @@
 (defn action/float []
   (fn [seat binding]
     (if-let [window (seat :focused)]
-      (window/set-float window (not (window :float))))))
+      (unless (= (window :tag) :sticky)
+        (window/set-float window (not (window :float)))))))
 
 (defn action/fullscreen []
   (fn [seat binding]
@@ -601,6 +609,17 @@
       (if (window :fullscreen)
         (window/set-fullscreen window nil)
         (window/set-fullscreen window (window/tag-output window))))))
+
+(defn action/sticky []
+  (fn [seat binding]
+    (when-let [focused (seat :focused)
+               output (seat :focused-output)
+               tag (min-of (keys (output :tags)))]
+      (if (= (focused :tag) :sticky)
+        (put focused :tag tag)
+        (do
+          (window/set-float focused true)
+          (put focused :tag :sticky))))))
 
 (defn action/swap-main []
   (fn [seat binding]
