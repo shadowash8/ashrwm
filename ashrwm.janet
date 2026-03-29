@@ -701,8 +701,8 @@
 
   (def config-dir (or (os/getenv "XDG_CONFIG_HOME")
                       (string (os/getenv "HOME") "/.config")))
-  (def init-path (get 1 args (string config-dir "/ashrwm/init.janet")))
-  (when-let [init (file/open init-path :r)]
+  (def config-path (get 1 args (string config-dir "/ashrwm/config.janet")))
+  (when-let [init (file/open config-path :r)]
     (dofile init :env repl-env)
     (file/close init))
 
