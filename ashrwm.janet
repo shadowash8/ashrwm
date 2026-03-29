@@ -602,6 +602,27 @@
         (window/set-fullscreen window nil)
         (window/set-fullscreen window (window/tag-output window))))))
 
+(defn action/swap-main []
+  (fn [seat binding]
+    (when-let [focused (seat :focused)
+               output (window/tag-output focused)
+               visible (filter |(not ($ :float)) (output/visible output (wm :windows)))
+               main (first visible)]
+      (if (= focused main)
+        # already main, swap with next slave
+        (when-let [next (get visible 1)]
+          (def i-focused (index-of focused (wm :windows)))
+          (def i-next (index-of next (wm :windows)))
+          (put (wm :windows) i-focused next)
+          (put (wm :windows) i-next focused))
+        # not main, swap with main
+        (do
+          (def i-focused (index-of focused (wm :windows)))
+          (def i-main (index-of main (wm :windows)))
+          (put (wm :windows) i-focused main)
+          (put (wm :windows) i-main focused))))))
+
+
 (defn action/set-tag [tag]
   (fn [seat binding]
     (if-let [window (seat :focused)]

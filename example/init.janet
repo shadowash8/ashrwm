@@ -9,6 +9,7 @@
   [:h {:mod4 true} (action/focus-output)]
   [:i {:mod4 true} (action/focus-output)]
   [:t {:mod4 true} (action/fullscreen)]
+  [:z {:mod4 true} (action/swap-main)]
   [:t {:mod4 true :mod1 true} (action/float)]
   [:p {:mod4 true} (action/spawn ["sh" "-c" "grim -g \"$(slurp)\" - | wl-copy"])]
   [:Escape {:mod4 true :mod1 true :shift true :ctrl true} (action/passthrough)]
