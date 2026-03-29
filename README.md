@@ -24,6 +24,8 @@ always welcome!
 
 Run `zig build`. All dependencies will be fetched by Zig and built from source.
 
+Install to path `zig build --prefix /usr/local`
+
 Requires Zig 0.15, a statically linked Zig binary can be obtained from https://ziglang.org/download/.
 
 ## Usage
