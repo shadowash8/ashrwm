@@ -1,4 +1,6 @@
 # ashrwm
+![ashrwm image](./images/main.png)
+![ashrwm image](./images/browser+code.png)
 
 A window manager for the [river](https://codeberg.org/river/river) Wayland compositor.
 
@@ -13,6 +15,9 @@ capable enough to use as my daily driver.
 	- An arbitrary number of tags can be displayed at once on each output
 	- Each tag can be displayed on at most one output at a time
 - Floating windows
+- Sticky windows
+- Focus follows mouse
+- libinput configuration
 - A REPL
 
 ## Building
@@ -38,4 +43,4 @@ Passing a file to ashrwm as an argument will evaluate that file instead.
 See [example/config.janet](example/config.janet).
 
 ## credits
-ashrwm is a fork of [rijan](https://codeberg.org/ifreund/rijan)
+ashrwm is a fork of [rijan](https://codeberg.org/ifreund/rijan) made by the developer of river [Isaac Freund](https://codeberg.org/ifreund)
