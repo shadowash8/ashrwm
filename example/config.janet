@@ -1,5 +1,14 @@
-# to disable default background color
-# (put config :background nil)
+# autostart
+(defn autostart [cmd]
+  (ev/spawn (os/proc-wait (os/spawn cmd :p))))
+
+(autostart ["sh" "-c" "swaybg -i $(cat ~/.cache/ashwal/ashwal)"])
+
+# theming
+(put config :border-width 2)
+(put config :border-focused 0xffffff)
+(put config :border-normal 0x444444)
+(put config :background nil)
 
 # input
 (put config :tap-to-click true)
@@ -7,6 +16,9 @@
 (put config :dwt true)
 (put config :focus-follow-mouse true)
 
+# keybinds
+# mod4 = Super/Windows key
+# mod1 = Alt key
 (array/push
   (config :xkb-bindings)
   [:space {:mod4 true :mod1 true} (action/spawn ["foot"])]
@@ -36,5 +48,5 @@
 
 (array/push
   (config :pointer-bindings)
-  [:left {:mod4 :true} (action/pointer-move)]
-  [:right {:mod4 :true} (action/pointer-resize)])
+  [:left {:mod4 true} (action/pointer-move)]
+  [:right {:mod4 true} (action/pointer-resize)])
