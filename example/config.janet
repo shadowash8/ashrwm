@@ -1,10 +1,11 @@
 # to disable default background color
 # (put config :background nil)
 
-# libinput
+# input
 (put config :tap-to-click true)
-(put config :natural-scroll true)
+(put config :natural-scroll false)
 (put config :dwt true)
+(put config :focus-follow-mouse true)
 
 (array/push
   (config :xkb-bindings)

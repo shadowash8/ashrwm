@@ -426,6 +426,11 @@
   (if-let [window (seat :window-interaction)]
     (seat/focus seat window))
 
+  (when ((wm :config) :focus-follows-mouse)
+    (when-let [window (seat :pointer-target)]
+      (unless (or (seat :op) (window :closed))
+        (seat/focus seat window))))
+
   (when-let [[binding action] (seat :pending-action)]
     (action seat binding))
 
