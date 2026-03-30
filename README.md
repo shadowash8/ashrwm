@@ -29,13 +29,13 @@ Run ashrwm inside [river](https://codeberg.org/river/river). Requires river's
 main branch (version 0.4.0-dev). It may be useful to start ashrwm from river's
 init script.
 
-On startup ashrwm will evaluate `$XDG_CONFIG_HOME/ashrwm/init.janet` if the file
-exists. If `$XDG_CONFIG_HOME` is not set, `~/.config/ashrwm/init.janet` will be
+On startup ashrwm will evaluate `$XDG_CONFIG_HOME/ashrwm/config.janet` if the file
+exists. If `$XDG_CONFIG_HOME` is not set, `~/.config/ashrwm/config.janet` will be
 tried instead.
 
 Passing a file to ashrwm as an argument will evaluate that file instead.
 
-See [example/init.janet](example/init.janet).
+See [example/config.janet](example/config.janet).
 
 ## credits
 ashrwm is a fork of [rijan](https://codeberg.org/ifreund/rijan)
