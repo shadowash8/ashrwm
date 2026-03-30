@@ -426,7 +426,8 @@
   (if-let [window (seat :window-interaction)]
     (seat/focus seat window))
 
-  (when ((wm :config) :focus-follows-mouse)
+  (when (and ((wm :config) :focus-follows-mouse)
+              (seat :pointer-moved))
     (when-let [window (seat :pointer-target)]
       (unless (or (seat :op) (window :closed))
         (seat/focus seat window))))
@@ -454,7 +455,8 @@
   (put seat :new nil)
   (put seat :window-interaction nil)
   (put seat :pending-action nil)
-  (put seat :op-release nil))
+  (put seat :op-release nil)
+  (put seat :pointer-moved nil))
 
 (defn seat/render [seat]
   (when-let [op (seat :op)]
@@ -473,8 +475,8 @@
   (defn seat/handle-event [event]
     (match event
       [:removed] (put seat :removed true)
-      [:pointer-enter window] (put seat :pointer-target (:get-user-data window))
-      [:pointer-leave] (put seat :pointer-target nil)
+      [:pointer-enter window] (do (put seat :pointer-target (:get-user-data window)) (put seat :pointer-moved true))
+      [:pointer-leave] (do (put seat :pointer-target nil) (put seat :pointer-moved false))
       [:window-interaction window] (put seat :window-interaction (:get-user-data window))
       [:shell-surface-interaction shell_surface] (do)
       [:op-delta dx dy] (do (put (seat :op) :dx dx) (put (seat :op) :dy dy))
