@@ -1,6 +1,11 @@
 # to disable default background color
 # (put config :background nil)
 
+# libinput
+(put config :tap-to-click true)
+(put config :natural-scroll true)
+(put config :dwt true)
+
 (array/push
   (config :xkb-bindings)
   [:space {:mod4 true :mod1 true} (action/spawn ["foot"])]

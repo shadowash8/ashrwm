@@ -12,7 +12,9 @@
     :custom-protocols (map |(string protocols/river-protocols $)
                            ["/river-window-management-v1.xml"
                             "/river-layer-shell-v1.xml"
-                            "/river-xkb-bindings-v1.xml"])))
+                            "/river-xkb-bindings-v1.xml"
+                            "/river-input-management-v1.xml"
+                            "/river-libinput-config-v1.xml"])))
 
 (def required-interfaces
   @{"wl_compositor" 4
@@ -20,7 +22,8 @@
     "wp_single_pixel_buffer_manager_v1" 1
     "river_window_manager_v1" 4
     "river_layer_shell_v1" 1
-    "river_xkb_bindings_v1" 1})
+    "river_xkb_bindings_v1" 1
+    "river_libinput_config_v1" 1})
 
 # https://protesilaos.com/emacs/modus-themes-colors
 (def light @{:background 0xffffff
@@ -246,6 +249,27 @@
   (unless (= output (seat :focused-output))
     (put seat :focused-output output)
     (when output (:set-default (output :layer-shell)))))
+
+(defn libinput/handle-device [obj]
+  (defn handle-event [event]
+    (match event
+      [:tap-support finger-count]
+      (when (and (> finger-count 0) ((wm :config) :tap-to-click))
+        (:set-tap obj :enabled))
+      [:natural-scroll-support supported]
+      (when (and (not= supported 0) ((wm :config) :natural-scroll))
+        (:set-natural-scroll obj :enabled))
+      [:dwt-support supported]
+      (when (and (not= supported 0) ((wm :config) :dwt))
+        (:set-dwt obj :enabled))
+      _ nil))
+
+  (:set-handler obj handle-event))
+
+(defn libinput/handle-event [event]
+  (match event
+    [:libinput-device obj] (libinput/handle-device obj)
+    _ nil))
 
 (defn seat/focus [seat window]
   (defn focus-window [window]
@@ -733,6 +757,7 @@
       (errorf "wayland compositor does not support %s" i)))
 
   (:set-handler (registry "river_window_manager_v1") wm/handle-event)
+  (:set-handler (registry "river_libinput_config_v1") libinput/handle-event)
 
   # Do a roundtrip to give the compositor the chance to send the
   # :unavailable event before creating the repl server and potentially
