@@ -33,6 +33,8 @@
   [:z {:mod4 true} (action/swap-main)]
   [:s {:mod4 true} (action/sticky)]
   [:t {:mod4 true :mod1 true} (action/float)]
+  [:equal {:mod4 true} (action/main-ratio 0.05)]
+  [:minus {:mod4 true} (action/main-ratio -0.05)]
   [:p {:mod4 true} (action/spawn ["sh" "-c" "grim -g \"$(slurp)\" - | wl-copy"])]
   [:Escape {:mod4 true :mod1 true :shift true :ctrl true} (action/passthrough)]
   [:BackSpace {:mod4 true :mod1 true :shift true :ctrl true} (action/exit-session)]

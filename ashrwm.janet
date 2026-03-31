@@ -427,7 +427,7 @@
     (seat/focus seat window))
 
   (when (and ((wm :config) :focus-follows-mouse)
-              (seat :pointer-moved))
+             (seat :pointer-moved))
     (when-let [window (seat :pointer-target)]
       (unless (or (seat :op) (window :closed))
         (seat/focus seat window))))
@@ -672,6 +672,10 @@
           (put (wm :windows) i-focused main)
           (put (wm :windows) i-main focused))))))
 
+(defn action/main-ratio [delta]
+  (fn [seat binding]
+    (put config :main-ratio
+         (max 0.1 (min 0.9 (+ (config :main-ratio) delta))))))
 
 (defn action/set-tag [tag]
   (fn [seat binding]
