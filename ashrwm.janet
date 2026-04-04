@@ -510,32 +510,72 @@
 
 (defn wm/layout [output]
   (def windows (filter |(not ($ :float)) (output/visible output (wm :windows))))
-  (def side-count (- (length windows) 1))
   (def usable (output/usable-area output))
-  (def total-w (max 0 (- (usable :w) (* 2 ((wm :config) :outer-padding)))))
-  (def total-h (max 0 (- (usable :h) (* 2 ((wm :config) :outer-padding)))))
-  (def main-w (if (= 0 side-count) total-w (math/round (* total-w ((wm :config) :main-ratio)))))
-  (def side-w (- total-w main-w))
-  (def side-h (div total-h side-count))
-  (def side-h-rem (% total-h side-count))
-  (->> (range (length windows))
-       (map (fn [i]
-              (case i
-                0 [0 0 main-w total-h]
-                1 [main-w 0 side-w (+ side-h side-h-rem)]
-                [main-w (+ side-h-rem (* side-h (- i 1)))
-                 side-w side-h])))
-       (map (fn [[x y w h]]
-              (def outer ((wm :config) :outer-padding))
-              (def inner ((wm :config) :inner-padding))
-              [(+ x outer inner) (+ y outer inner)
-               (- w (* 2 inner)) (- h (* 2 inner))]))
-       (map (fn [[x y w h]]
-              [(+ x (usable :x)) (+ y (usable :y)) w h]))
-       (map (fn [window box]
-              (window/set-position window ;(slice box 0 2))
-              (window/propose-dimensions window ;(slice box 2 4)))
-            windows)))
+  # Tile layout
+  (if (= (config :layout) :tile)
+	(do 
+												  
+	  (def side-count (- (length windows) 1))
+	  (def total-w (max 0 (- (usable :w) (* 2 ((wm :config) :outer-padding)))))
+	  (def total-h (max 0 (- (usable :h) (* 2 ((wm :config) :outer-padding)))))
+	  (def main-w (if (= 0 side-count) total-w (math/round (* total-w ((wm :config) :main-ratio)))))
+	  (def side-w (- total-w main-w))
+	  (def side-h (div total-h side-count))
+	  (def side-h-rem (% total-h side-count))
+	  (->> (range (length windows))
+		   (map (fn [i]
+				  (case i
+					0 [0 0 main-w total-h]
+					1 [main-w 0 side-w (+ side-h side-h-rem)]
+					[main-w (+ side-h-rem (* side-h (- i 1)))
+					 side-w side-h])))
+		   (map (fn [[x y w h]]
+				  (def outer ((wm :config) :outer-padding))
+				  (def inner ((wm :config) :inner-padding))
+				  [(+ x outer inner) (+ y outer inner)
+				   (- w (* 2 inner)) (- h (* 2 inner))]))
+		   (map (fn [[x y w h]]
+				  [(+ x (usable :x)) (+ y (usable :y)) w h]))
+		   (map (fn [window box]
+				  (window/set-position window ;(slice box 0 2))
+				  (window/propose-dimensions window ;(slice box 2 4)))
+				windows)))))
+
+  # Grid layout
+  (if (= (config :layout) :grid)
+	(do
+	    (def n (length windows))
+		(when (= n 0) (break))
+		(def outer (config :outer-padding))
+		(def inner (config :inner-padding))
+		(def cols (math/ceil (math/sqrt n)))
+		(def rows (math/ceil (/ n cols)))
+		(def total-w (max 0 (- (usable :w) (* 2 outer))))
+		(def total-h (max 0 (- (usable :h) (* 2 outer))))
+		(def cell-w (div total-w cols))
+		(def cell-w-rem (% total-w cols))
+		(def cell-h (div total-h rows))
+		(def cell-h-rem (% total-h rows))
+		(def last-row-spaces (* (- (* rows cols) n) cell-w))
+		(def last-row-pad (div (+ last-row-spaces (% last-row-spaces 2)) 2))
+		(each i (range n)
+		  (def row (div i cols))
+		  (def col (% i cols))
+		  (def last-row (= row (- rows 1)))
+		  (def x (+ (* col cell-w)
+					(if (> col 0) cell-w-rem 0)
+					(if last-row last-row-pad 0)))
+		  (def y (+ (* row cell-h)
+					(if (> row 0) (+ inner cell-h-rem) 0)))
+		  (def w (- (+ cell-w (if (= col 0) cell-w-rem 0))
+					(if (< col (- cols 1)) inner 0)))
+		  (def h (- (+ cell-h (if (= row 0) cell-h-rem 0))
+					(if (> row 0) inner 0)))
+		  (def window (get windows i))
+		  (window/set-position window
+							   (+ (usable :x) outer x)
+							   (+ (usable :y) outer y))
+		  (window/propose-dimensions window w h)))) 
 
 (defn wm/manage []
   (update wm :render-order |(->> $ (filter (fn [window] (not (window :closed))))))
@@ -651,6 +691,10 @@
         (do
           (window/set-float focused true)
           (put focused :tag :sticky))))))
+
+(defn action/layout [layout]
+  (fn [seat binding]
+    (put config :layout layout)))
 
 (defn action/swap-main []
   (fn [seat binding]

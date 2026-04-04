@@ -9,7 +9,8 @@ capable enough to use as my daily driver.
 
 ## Features
 
-- Dynamic tiling
+- Dynamic tiling with layouts
+  - Live layout change
 - Tags
 	- Each window has exactly one tag
 	- An arbitrary number of tags can be displayed at once on each output

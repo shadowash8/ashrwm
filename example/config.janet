@@ -16,6 +16,12 @@
 (put config :dwt true)
 (put config :focus-follow-mouse true)
 
+# layout
+# set the default layout
+# 1. tile
+# 2. grid
+(put config :layout :tile)
+
 # keybinds
 # mod4 = Super/Windows key
 # mod1 = Alt key
@@ -33,6 +39,8 @@
   [:z {:mod4 true} (action/swap-main)]
   [:s {:mod4 true} (action/sticky)]
   [:t {:mod4 true :mod1 true} (action/float)]
+  [:z {:mod4 true} (action/layout :tile)]
+  [:x {:mod4 true} (action/layout :grid)]
   [:equal {:mod4 true} (action/main-ratio 0.05)]
   [:minus {:mod4 true} (action/main-ratio -0.05)]
   [:p {:mod4 true} (action/spawn ["sh" "-c" "grim -g \"$(slurp)\" - | wl-copy"])]
