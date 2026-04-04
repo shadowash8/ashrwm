@@ -539,7 +539,7 @@
 		   (map (fn [window box]
 				  (window/set-position window ;(slice box 0 2))
 				  (window/propose-dimensions window ;(slice box 2 4)))
-				windows)))))
+				windows))))
 
   # Grid layout
   (if (= (config :layout) :grid)
@@ -575,7 +575,7 @@
 		  (window/set-position window
 							   (+ (usable :x) outer x)
 							   (+ (usable :y) outer y))
-		  (window/propose-dimensions window w h)))) 
+		  (window/propose-dimensions window w h)))))
 
 (defn wm/manage []
   (update wm :render-order |(->> $ (filter (fn [window] (not (window :closed))))))
