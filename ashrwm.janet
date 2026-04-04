@@ -29,6 +29,7 @@
               :outer-padding 4
               :inner-padding 4
               :main-ratio 0.60
+			  :layout :tile
               :xkb-bindings @[]
               :pointer-bindings @[]})
 

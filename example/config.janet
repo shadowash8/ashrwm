@@ -6,6 +6,8 @@
 
 # theming
 (put config :border-width 2)
+(put config :outer-padding 4)
+(put config :inner-padding 4)
 (put config :border-focused 0xffffff)
 (put config :border-normal 0x444444)
 
@@ -20,6 +22,7 @@
 # 1. tile
 # 2. grid
 (put config :layout :tile)
+(put config :main-ratio 0.60)
 
 # keybinds
 # mod4 = Super/Windows key
