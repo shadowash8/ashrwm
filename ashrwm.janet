@@ -546,8 +546,8 @@
 	(do
 	    (def n (length windows))
 		(when (= n 0) (break))
-		(def outer (config :outer-padding))
-		(def inner (config :inner-padding))
+		(def outer ((wm :config) :outer-padding))
+		(def inner ((wm :config) :inner-padding))
 		(def cols (math/ceil (math/sqrt n)))
 		(def rows (math/ceil (/ n cols)))
 		(def total-w (max 0 (- (usable :w) (* 2 outer))))
@@ -566,15 +566,15 @@
 					(if (> col 0) cell-w-rem 0)
 					(if last-row last-row-pad 0)))
 		  (def y (+ (* row cell-h)
-					(if (> row 0) (+ inner cell-h-rem) 0)))
+					(if (> row 0) (+ (* 2 inner) cell-h-rem) 0)))
 		  (def w (- (+ cell-w (if (= col 0) cell-w-rem 0))
-					(if (< col (- cols 1)) inner 0)))
+					(if (< col (- cols 1)) (* 2 inner) 0)))
 		  (def h (- (+ cell-h (if (= row 0) cell-h-rem 0))
-					(if (> row 0) inner 0)))
+					(if (> row 0) (* 2 inner) 0)))
 		  (def window (get windows i))
 		  (window/set-position window
-							   (+ (usable :x) outer x)
-							   (+ (usable :y) outer y))
+							   (+ (usable :x) (* 2 outer) x)
+							   (+ (usable :y) (* 2 outer) y))
 		  (window/propose-dimensions window w h)))))
 
 (defn wm/manage []
