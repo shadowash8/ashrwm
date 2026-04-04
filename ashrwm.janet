@@ -25,22 +25,12 @@
     "river_xkb_bindings_v1" 1
     "river_libinput_config_v1" 1})
 
-# https://protesilaos.com/emacs/modus-themes-colors
-(def light @{:background 0xffffff
-             :border-normal 0x9f9f9f
-             :border-focused 0x000000})
-
-(def dark @{:background 0x000000
-            :border-normal 0x646464
-            :border-focused 0xffffff})
-
 (def config @{:border-width 2
               :outer-padding 4
               :inner-padding 4
               :main-ratio 0.60
               :xkb-bindings @[]
               :pointer-bindings @[]})
-(merge-into config dark)
 
 (def wm @{:config config
           :outputs @[]
@@ -58,26 +48,6 @@
    (* (band 0xff rgb) (/ 0xffff_ffff 0xff))
    0xffff_ffff])
 
-(defn bg/manage [bg output]
-  (when ((wm :config) :background)
-    (:sync-next-commit (bg :shell-surface))
-    (:place-bottom (bg :node))
-    (:set-position (bg :node) (output :x) (output :y))
-    (def buffer (:create-u32-rgba-buffer
-                  (registry "wp_single_pixel_buffer_manager_v1")
-                  ;(rgb-to-u32-rgba ((wm :config) :background))))
-    (:attach (bg :surface) buffer 0 0)
-    (:damage-buffer (bg :surface) 0 0 0x7fff_ffff 0x7fff_ffff)
-    (:set-destination (bg :viewport) (output :w) (output :h))
-    (:commit (bg :surface))
-    (:destroy buffer)))
-
-(defn bg/destroy [bg]
-  (:destroy (bg :viewport))
-  (:destroy (bg :shell-surface))
-  (:destroy (bg :surface))
-  (:destroy (bg :node)))
-
 (defn bg/create []
   (def surface (:create-surface (registry "wl_compositor")))
   (def viewport (:get-viewport (registry "wp_viewporter") surface))
@@ -86,6 +56,12 @@
     :viewport viewport
     :shell-surface shell-surface
     :node (:get-node shell-surface)})
+
+(defn bg/destroy [bg]
+  (:destroy (bg :viewport))
+  (:destroy (bg :shell-surface))
+  (:destroy (bg :surface))
+  (:destroy (bg :node)))
 
 (defn output/visible [output windows]
   (let [tags (output :tags)]
@@ -104,7 +80,6 @@
     output))
 
 (defn output/manage [output]
-  (bg/manage (output :bg) output)
   (when (output :new)
     (let [unused (find (fn [tag] (not (find |(($ :tags) tag) (wm :outputs)))) (range 1 10))]
       (put (output :tags) unused true))))

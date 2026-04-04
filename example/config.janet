@@ -8,7 +8,6 @@
 (put config :border-width 2)
 (put config :border-focused 0xffffff)
 (put config :border-normal 0x444444)
-(put config :background nil)
 
 # input
 (put config :tap-to-click true)
