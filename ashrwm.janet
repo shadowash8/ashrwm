@@ -129,7 +129,7 @@
   (unless (= (window :tag) :sticky)
     (if float
       (:set-tiled (window :obj) {})
-      (:set-tiled (window :obj) {:left true :bottom :true :top :true :right true})))
+      (:set-tiled (window :obj) {:left true :bottom true :top true :right true})))
   (put window :float float))
 
 (defn window/set-fullscreen [window fullscreen-output]
@@ -355,7 +355,7 @@
              :normal (config :border-normal)
              :focused (config :border-focused)))
   (:set-borders (window :obj)
-                {:left true :bottom :true :top :true :right true}
+                {:left true :bottom true :top true :right true}
                 (config :border-width)
                 ;(rgb-to-u32-rgba rgb)))
 
