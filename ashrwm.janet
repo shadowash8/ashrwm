@@ -757,6 +757,21 @@
 # Only main is marshaled when building a standalone executable,
 # so we must capture the REPL environment outside of main.
 (def repl-env (curenv))
+(var- booted? true)
+
+(defn action/config [& args]
+  (fn [&]
+    (def config-dir (or (os/getenv "XDG_CONFIG_HOME")
+                        (string (os/getenv "HOME") "/.config")))
+    (def config-path (get 1 args (string config-dir "/ashrwm/config.janet")))
+
+    (if-let [init (file/open config-path :r)]
+      (do
+        (print "Reloading: " config-path)
+        (dofile init :env repl-env)
+        (file/close init))
+      (print "Error: Could not open config file at " config-path))))
+
 (defn repl-server-create []
   (def path (string/format "%s/ashrwm-%s"
                            (assert (os/getenv "XDG_RUNTIME_DIR"))
@@ -771,12 +786,9 @@
   # It only matters if it's set when the display is created.
   (os/setenv "WAYLAND_DEBUG" nil)
 
-  (def config-dir (or (os/getenv "XDG_CONFIG_HOME")
-                      (string (os/getenv "HOME") "/.config")))
-  (def config-path (get 1 args (string config-dir "/ashrwm/config.janet")))
-  (when-let [init (file/open config-path :r)]
-    (dofile init :env repl-env)
-    (file/close init))
+  (def reload-fn (action/config ;args))
+  (action/config args)
+  (reload-fn)
 
   (put registry :obj (:get-registry display))
   (:set-handler (registry :obj) registry/handle-event)

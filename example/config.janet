@@ -2,7 +2,10 @@
 (defn autostart [cmd]
   (ev/spawn (os/proc-wait (os/spawn cmd :p))))
 
-(autostart ["sh" "-c" "swaybg -i $(cat ~/.cache/ashwal/ashwal)"])
+# add booted check to autostart only at boot and not on reload
+(unless booted?
+  (autostart ["sh" "-c" "swaybg -i $(cat ~/.cache/ashwal/ashwal)"])
+  (set booted? true))
 
 # theming
 (put config :border-width 2)
@@ -27,38 +30,35 @@
 # keybinds
 # mod4 = Super/Windows key
 # mod1 = Alt key
-(array/push
-  (config :xkb-bindings)
-  [:space {:mod4 true :mod1 true} (action/spawn ["foot"])]
-  [:l {:mod4 true} (action/spawn ["fuzzel"])]
-  [:u {:mod4 true :mod1 true} (action/close)]
-  [:space {:mod4 true} (action/zoom)]
-  [:e {:mod4 true} (action/focus :prev)]
-  [:a {:mod4 true} (action/focus :next)]
-  [:h {:mod4 true} (action/focus-output)]
-  [:i {:mod4 true} (action/focus-output)]
-  [:t {:mod4 true} (action/fullscreen)]
-  [:z {:mod4 true} (action/swap-main)]
-  [:s {:mod4 true} (action/sticky)]
-  [:t {:mod4 true :mod1 true} (action/float)]
-  [:z {:mod4 true} (action/layout :tile)]
-  [:x {:mod4 true} (action/layout :grid)]
-  [:equal {:mod4 true} (action/main-ratio 0.05)]
-  [:minus {:mod4 true} (action/main-ratio -0.05)]
-  [:p {:mod4 true} (action/spawn ["sh" "-c" "grim -g \"$(slurp)\" - | wl-copy"])]
-  [:Escape {:mod4 true :mod1 true :shift true :ctrl true} (action/passthrough)]
-  [:BackSpace {:mod4 true :mod1 true :shift true :ctrl true} (action/exit-session)]
-  [:0 {:mod4 true} (action/focus-all-tags)])
+(set (config :xkb-bindings)
+     @[
+	   [:space {:mod4 true :mod1 true} (action/spawn ["foot"])]
+	   [:l {:mod4 true} (action/spawn ["fuzzel"])]
+	   [:u {:mod4 true :mod1 true} (action/close)]
+	   [:r {:mod4 true} (action/reload)]
+	   [:e {:mod4 true} (action/focus :prev)]
+	   [:a {:mod4 true} (action/focus :next)]
+	   [:h {:mod4 true} (action/focus-output)]
+	   [:i {:mod4 true} (action/focus-output)]
+	   [:t {:mod4 true} (action/fullscreen)]
+	   [:k {:mod4 true} (action/zoom)]
+	   [:z {:mod4 true} (action/swap-main)]
+	   [:s {:mod4 true} (action/sticky)]
+	   [:t {:mod4 true :mod1 true} (action/float)]
+	   [:z {:mod4 true} (action/layout :tile)]
+	   [:x {:mod4 true} (action/layout :grid)]
+	   [:equal {:mod4 true} (action/main-ratio 0.05)]
+	   [:minus {:mod4 true} (action/main-ratio -0.05)]
+	   [:p {:mod4 true} (action/spawn ["sh" "-c" "grim -g \"$(slurp)\" - | wl-copy"])]
+	   [:Escape {:mod4 true :mod1 true :shift true :ctrl true} (action/passthrough)]
+	   [:BackSpace {:mod4 true :mod1 true :shift true :ctrl true} (action/exit-session)]
+	   [:0 {:mod4 true} (action/focus-all-tags)]])
 
 (for i 1 10
-  (def keysym (keyword i))
-  (array/push
-    (config :xkb-bindings)
-    [keysym {:mod4 true} (action/focus-tag i)]
-    [keysym {:mod4 true :mod1 true} (action/set-tag i)]
-    [keysym {:mod4 true :mod1 true :shift true} (action/toggle-tag i)]))
+  (let [keysym (keyword i)]
+    (array/push (config :xkb-bindings) [keysym {:mod4 true} (action/focus-tag i)])
+    (array/push (config :xkb-bindings) [keysym {:mod4 true :shift true} (action/set-tag i)])))
 
-(array/push
-  (config :pointer-bindings)
-  [:left {:mod4 true} (action/pointer-move)]
-  [:right {:mod4 true} (action/pointer-resize)])
+(set (config :pointer-bindings)
+     @[[:left {:mod4 true} (action/pointer-move)]
+       [:right {:mod4 true} (action/pointer-resize)]])
