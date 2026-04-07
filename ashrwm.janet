@@ -757,7 +757,7 @@
 # Only main is marshaled when building a standalone executable,
 # so we must capture the REPL environment outside of main.
 (def repl-env (curenv))
-(var- booted? true)
+(var- booted? false)
 
 (defn action/config [& args]
   (fn [&]
