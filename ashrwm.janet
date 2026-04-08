@@ -380,7 +380,13 @@
     seat))
 
 (defn seat/manage [seat]
-  (when (seat :new)
+  (when (or (seat :new) (seat :reload))
+	(each b (seat :xkb-bindings)
+      (:destroy (b :obj)))
+	
+	(put seat :xkb-bindings @[])
+    (put seat :pointer-bindings @[])
+	
     (each binding (config :xkb-bindings)
       (xkb-binding/create seat ;binding))
     (each binding (config :pointer-bindings)
@@ -768,6 +774,10 @@
     (if-let [init (file/open config-path :r)]
       (do
         (print "Reloading: " config-path)
+
+		(each seat (wm :seats)
+          (put seat :reload true))
+		
         (dofile init :env repl-env)
         (file/close init))
       (print "Error: Could not open config file at " config-path))))
