@@ -22,7 +22,16 @@ capable enough to use as my daily driver.
 - Hot reload configuration
 - A REPL
 
-## Building
+## Install
+
+### AUR
+```bash
+paru -S ashrwm
+OR
+yay -S ashrwm
+```
+
+### Building
 
 Run `zig build`. All dependencies will be fetched by Zig and built from source.
 
