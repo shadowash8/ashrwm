@@ -1,12 +1,3 @@
-# autostart
-(defn autostart [cmd]
-  (ev/spawn (os/proc-wait (os/spawn cmd :p))))
-
-# add booted check to autostart only at boot and not on reload
-(unless booted?
-  (autostart ["sh" "-c" "swaybg -i $(cat ~/.cache/ashwal/ashwal)"])
-  (set booted? true))
-
 # theming
 (put config :border-width 2)
 (put config :outer-padding 4)

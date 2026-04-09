@@ -29,7 +29,7 @@
               :outer-padding 4
               :inner-padding 4
               :main-ratio 0.60
-			  :layout :tile
+              :layout :tile
               :xkb-bindings @[]
               :pointer-bindings @[]})
 
@@ -381,12 +381,12 @@
 
 (defn seat/manage [seat]
   (when (or (seat :new) (seat :reload))
-	(each b (seat :xkb-bindings)
+    (each b (seat :xkb-bindings)
       (:destroy (b :obj)))
-	
-	(put seat :xkb-bindings @[])
+
+    (put seat :xkb-bindings @[])
     (put seat :pointer-bindings @[])
-	
+
     (each binding (config :xkb-bindings)
       (xkb-binding/create seat ;binding))
     (each binding (config :pointer-bindings)
@@ -500,62 +500,62 @@
 
   # Tile layout
   (if (= (config :layout) :tile)
-	(do 
-	  (def side-count (- (length windows) 1))
-	  (def main-w (if (= 0 side-count) total-w (math/round (* total-w ((wm :config) :main-ratio)))))
-	  (def side-w (- total-w main-w))
-	  (def side-h (div total-h side-count))
-	  (def side-h-rem (% total-h side-count))
-	  (->> (range (length windows))
-		   (map (fn [i]
-				  (case i
-					0 [0 0 main-w total-h]
-					1 [main-w 0 side-w (+ side-h side-h-rem)]
-					[main-w (+ side-h-rem (* side-h (- i 1)))
-					 side-w side-h])))
-		   (map (fn [[x y w h]]
-				  [(+ x outer inner) (+ y outer inner)
-				   (- w (* 2 inner)) (- h (* 2 inner))]))
-		   (map (fn [[x y w h]]
-				  [(+ x (usable :x)) (+ y (usable :y)) w h]))
-		   (map (fn [window box]
-				  (window/set-position window ;(slice box 0 2))
-				  (window/propose-dimensions window ;(slice box 2 4)))
-				windows))))
+    (do
+      (def side-count (- (length windows) 1))
+      (def main-w (if (= 0 side-count) total-w (math/round (* total-w ((wm :config) :main-ratio)))))
+      (def side-w (- total-w main-w))
+      (def side-h (div total-h side-count))
+      (def side-h-rem (% total-h side-count))
+      (->> (range (length windows))
+           (map (fn [i]
+                  (case i
+                    0 [0 0 main-w total-h]
+                    1 [main-w 0 side-w (+ side-h side-h-rem)]
+                    [main-w (+ side-h-rem (* side-h (- i 1)))
+                     side-w side-h])))
+           (map (fn [[x y w h]]
+                  [(+ x outer inner) (+ y outer inner)
+                   (- w (* 2 inner)) (- h (* 2 inner))]))
+           (map (fn [[x y w h]]
+                  [(+ x (usable :x)) (+ y (usable :y)) w h]))
+           (map (fn [window box]
+                  (window/set-position window ;(slice box 0 2))
+                  (window/propose-dimensions window ;(slice box 2 4)))
+                windows))))
 
   # Grid layout
   (if (= (config :layout) :grid)
-	(do
-	  (def n (length windows))
-	  (when (pos? n)
-		(def cols (math/ceil (math/sqrt n)))
-		(def rows (math/ceil (/ n cols)))
-		(def cell-w (div total-w cols))
-		(def cell-h (div total-h rows))
-		(def w-rem (% total-w cols))
-		(def h-rem (% total-h rows))
-   		
-		(->> (range n)
-			 (map (fn [i]
-					(def row (div i cols))
-					(def col (% i cols))
-					(def is-last-row (= row (- rows 1)))
-					(def last-row-spaces (* (- (* rows cols) n) cell-w))
-					(def last-row-pad (div (+ last-row-spaces (% last-row-spaces 2)) 2))
-					
-					[(+ (* col cell-w) (if (> col 0) w-rem 0) (if is-last-row last-row-pad 0))
-					 (+ (* row cell-h) (if (> row 0) h-rem 0))
-					 (+ cell-w (if (= col 0) w-rem 0))
-					 (+ cell-h (if (= row 0) h-rem 0))]))
-		   (map (fn [[x y w h]]
-				  [(+ x outer inner) (+ y outer inner)
-				   (- w (* 2 inner)) (- h (* 2 inner))]))
-		   (map (fn [[x y w h]]
-					[(+ x (usable :x)) (+ y (usable :y)) w h]))
-		   (map (fn [window box]
-					(window/set-position window ;(slice box 0 2))
-					(window/propose-dimensions window ;(slice box 2 4)))
-				  windows))))))
+    (do
+      (def n (length windows))
+      (when (pos? n)
+        (def cols (math/ceil (math/sqrt n)))
+        (def rows (math/ceil (/ n cols)))
+        (def cell-w (div total-w cols))
+        (def cell-h (div total-h rows))
+        (def w-rem (% total-w cols))
+        (def h-rem (% total-h rows))
+
+        (->> (range n)
+             (map (fn [i]
+                    (def row (div i cols))
+                    (def col (% i cols))
+                    (def is-last-row (= row (- rows 1)))
+                    (def last-row-spaces (* (- (* rows cols) n) cell-w))
+                    (def last-row-pad (div (+ last-row-spaces (% last-row-spaces 2)) 2))
+
+                    [(+ (* col cell-w) (if (> col 0) w-rem 0) (if is-last-row last-row-pad 0))
+                     (+ (* row cell-h) (if (> row 0) h-rem 0))
+                     (+ cell-w (if (= col 0) w-rem 0))
+                     (+ cell-h (if (= row 0) h-rem 0))]))
+             (map (fn [[x y w h]]
+                    [(+ x outer inner) (+ y outer inner)
+                     (- w (* 2 inner)) (- h (* 2 inner))]))
+             (map (fn [[x y w h]]
+                    [(+ x (usable :x)) (+ y (usable :y)) w h]))
+             (map (fn [window box]
+                    (window/set-position window ;(slice box 0 2))
+                    (window/propose-dimensions window ;(slice box 2 4)))
+                  windows))))))
 
 (defn wm/manage []
   (update wm :render-order |(->> $ (filter (fn [window] (not (window :closed))))))
@@ -763,7 +763,6 @@
 # Only main is marshaled when building a standalone executable,
 # so we must capture the REPL environment outside of main.
 (def repl-env (curenv))
-(var- booted? false)
 
 (defn action/config [& args]
   (fn [&]
@@ -775,9 +774,9 @@
       (do
         (print "Reloading: " config-path)
 
-		(each seat (wm :seats)
+        (each seat (wm :seats)
           (put seat :reload true))
-		
+
         (dofile init :env repl-env)
         (file/close init))
       (print "Error: Could not open config file at " config-path))))
