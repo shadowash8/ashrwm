@@ -789,6 +789,10 @@
   (netrepl/server :unix path repl-env))
 
 (defn main [& args]
+  (when (has-value? args "--version")
+	(print "ashrwm " "v0.1.0")
+    (os/exit 0))
+
   (def display (wayland/connect interfaces))
 
   # Avoid passing WAYLAND_DEBUG on to our children.
