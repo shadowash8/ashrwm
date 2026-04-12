@@ -9,8 +9,8 @@
             .hash = "janet-1.40.1-3XUN8cVGAAA7Os-UamOhi0sYVRqN-slGltgD5Jwwwfdk",
         },
         .janet_wayland = .{
-            .url = "git+https://codeberg.org/ifreund/janet-wayland?ref=main#c118af389f43ac853c5189db4fd5cc430c7a3370",
-            .hash = "N-V-__8AAPOoAACNhl0Pd9muOFuvch4kljaImdQiU6FPr9tY",
+            .url = "git+https://codeberg.org/ifreund/janet-wayland?ref=main#0aea1ae8c2b462d609fc739acceeb9ead315c07f",
+            .hash = "N-V-__8AAFKzAADGCCHsA4J38ww-aT3CFoj2MbSxtkWX0D50",
         },
         .wayland = .{
             .url = "git+https://github.com/ifreund/wayland-build.zig#8c7f2c42ab0e4c16853d03914ce1f3259cda40db",
@@ -33,12 +33,12 @@
             .hash = "N-V-__8AAPMqAQCbXJ9KGZ7pEepOFcJFiLb-PW0LlAOhlgtd",
         },
         .river = .{
-            .url = "git+https://codeberg.org/river/river?ref=v0.4.0#6b9f40ca72dc4be6ef5866fbb78a3464a1941071",
-            .hash = "river-0.5.0-dev-_G6NjqqiCwBu8xdp2A55txZJQp70Krn21-PEWuMdDwQr",
+            .url = "git+https://codeberg.org/river/river?ref=v0.4.2#addd4a0c5386fe3efc6d37cdde458d0f3153bebe",
+            .hash = "river-0.4.2-_G6Njq3eCwBPOoLbZB7ULNNEcIFDNJpz-vDYzr6JanWZ",
         },
         .wayland_protocols = .{
-            .url = "git+https://gitlab.freedesktop.org/wayland/wayland-protocols?ref=1.47#88223018d1b578d0d8869866da66d9608e05f928",
-            .hash = "N-V-__8AAFdWDwA0ktbNUi9pFBHCRN4weXIgIfCrVjfGxqgA",
+            .url = "git+https://gitlab.freedesktop.org/wayland/wayland-protocols?ref=1.48#02e63e74a807afed95bc25a386173110afef24e3",
+            .hash = "N-V-__8AAMCWEADA0AS-1LfBEtixZLJAb_XQKQpgSmR2uxAO",
         },
     },
     .fingerprint = 0x36827645a282a823,
