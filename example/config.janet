@@ -26,7 +26,7 @@
 	   [:space {:mod4 true :mod1 true} (action/spawn ["foot"])]
 	   [:l {:mod4 true} (action/spawn ["fuzzel"])]
 	   [:u {:mod4 true :mod1 true} (action/close)]
-	   [:r {:mod4 true} (action/reload)]
+	   [:r {:mod4 true} (action/config)]
 	   [:e {:mod4 true} (action/focus :prev)]
 	   [:a {:mod4 true} (action/focus :next)]
 	   [:h {:mod4 true} (action/focus-output)]
