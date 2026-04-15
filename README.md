@@ -1,6 +1,7 @@
 # ashrwm
 ![ashrwm image](./images/main.png)
-![ashrwm image](./images/browser+code.png)
+![ashrwm image](./images/grid.png)
+![ashrwm image](./images/tile.png)
 
 A window manager for the [river](https://codeberg.org/river/river) Wayland compositor.
 
@@ -27,9 +28,12 @@ capable enough to use as my daily driver.
 ### AUR
 ```bash
 paru -S ashrwm
-OR
-yay -S ashrwm
 ```
+OR
+```bash
+paru -S ashrwm-git
+```
+
 
 ### Building
 
