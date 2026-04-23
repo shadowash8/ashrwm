@@ -290,10 +290,8 @@
     :none (focus-non-layer)))
 
 (defn seat/pointer-move [seat window]
-  (unless (seat :op)
+  (unless (or (seat :op) (not (window :float)))
     (seat/focus seat window)
-    (unless (= (window :tag) :sticky)
-      (window/set-float window true))
     (:op-start-pointer (seat :obj))
     (put seat :op @{:type :move
                     :window window
@@ -301,10 +299,8 @@
                     :dx 0 :dy 0})))
 
 (defn seat/pointer-resize [seat window edges]
-  (unless (seat :op)
+  (unless (or (seat :op) (not (window :float)))
     (seat/focus seat window)
-    (unless (= (window :tag) :sticky)
-      (window/set-float window true))
     (:op-start-pointer (seat :obj))
     (put seat :op @{:type :resize
                     :window window
@@ -790,7 +786,7 @@
 
 (defn main [& args]
   (when (has-value? args "--version")
-	(print "ashrwm " "v0.1.0")
+    (print "ashrwm " "v0.1.0")
     (os/exit 0))
 
   (def display (wayland/connect interfaces))
