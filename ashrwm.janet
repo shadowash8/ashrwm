@@ -764,18 +764,37 @@
   (fn [&]
     (def config-dir (or (os/getenv "XDG_CONFIG_HOME")
                         (string (os/getenv "HOME") "/.config")))
-    (def config-path (get 1 args (string config-dir "/ashrwm/config.janet")))
+    
+    (def config-path 
+      (or (get args 1)
+          (let [user-path (string config-dir "/ashrwm/config.janet")]
+            (if (os/stat user-path) 
+              user-path 
+              "/etc/ashrwm/config.janet"))))
 
-    (if-let [init (file/open config-path :r)]
+    (print "Loading: " config-path)
+
+    (try
       (do
-        (print "Reloading: " config-path)
+        (dofile config-path :env repl-env)
+        
+        (os/execute ["notify-send" "-a" "ashrwm" "Config Reloaded" (string "Loaded: " config-path)] :p)
 
         (each seat (wm :seats)
-          (put seat :reload true))
+          (put seat :reload true)))
 
-        (dofile init :env repl-env)
-        (file/close init))
-      (print "Error: Could not open config file at " config-path))))
+      ([err] 
+        (eprint "Error in config: " err)
+        
+        (os/execute ["notify-send" "-a" "ashrwm" "-u" "critical" 
+                     "Configuration Error" 
+                     (string "File: " config-path "\n\n" err "\n\nFalling back to system default...")] :p)
+        
+        (when (not= config-path "/etc/ashrwm/config.janet")
+          (print "Attempting system default fallback...")
+          (try 
+            (dofile "/etc/ashrwm/config.janet" :env repl-env) 
+            ([_] (eprint "CRITICAL: System default also failed!"))))))))
 
 (defn repl-server-create []
   (def path (string/format "%s/ashrwm-%s"
