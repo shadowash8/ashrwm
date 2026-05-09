@@ -172,7 +172,8 @@
   (def window @{:obj obj
                 :node (:get-node obj)
                 :new true
-                :tag 1})
+                :tag 1
+                :scroll-x nil})
   (defn window/handle-event [event]
     (match event
       [:closed] (put window :closed true)
@@ -552,6 +553,47 @@
                     (window/set-position window ;(slice box 0 2))
                     (window/propose-dimensions window ;(slice box 2 4)))
                   windows)))))
+
+  # Scroller layout
+  (if (= (config :layout) :scroller)
+    (do
+      (def n (length windows))
+      (when (pos? n)
+        (def main-w (math/round (* total-w (config :main-ratio))))
+        (def focused (or (find (fn [w] (find |(= ($ :focused) w) (wm :seats))) windows)
+                         (first windows)))
+        (def fi (index-of focused windows))
+        (def focused-x
+          (if (focused :scroll-x)
+            (max (+ (usable :x) outer inner)
+                 (min (focused :scroll-x)
+                      (- (+ (usable :x) (usable :w)) outer inner main-w)))
+            (+ (usable :x) outer inner)))
+        (put focused :scroll-x focused-x)
+        (window/set-position focused focused-x (+ (usable :y) outer inner))
+        (window/propose-dimensions focused
+                                   (- main-w (* 2 inner))
+                                   (- total-h (* 2 inner)))
+        (var rx (+ focused-x main-w inner))
+        (each i (range (+ fi 1) n)
+          (def window (get windows i))
+          (put window :scroll-x rx)
+          (window/set-position window rx (+ (usable :y) outer inner))
+          (window/propose-dimensions window
+                                     (- main-w (* 2 inner))
+                                     (- total-h (* 2 inner)))
+          (+= rx (+ main-w inner)))
+        (var lx focused-x)
+        (var i (- fi 1))
+        (while (>= i 0)
+          (def window (get windows i))
+          (-= lx (+ main-w inner))
+          (put window :scroll-x lx)
+          (window/set-position window lx (+ (usable :y) outer inner))
+          (window/propose-dimensions window
+                                     (- main-w (* 2 inner))
+                                     (- total-h (* 2 inner)))
+          (-= i 1)))))
 
   # Monocle layout
   (if (= (config :layout) :monocle)
