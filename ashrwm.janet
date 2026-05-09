@@ -551,7 +551,17 @@
              (map (fn [window box]
                     (window/set-position window ;(slice box 0 2))
                     (window/propose-dimensions window ;(slice box 2 4)))
-                  windows))))))
+                  windows)))))
+
+  # Monocle layout
+  (if (= (config :layout) :monocle)
+    (each window windows
+      (window/set-position window
+                           (+ (usable :x) outer inner)
+                           (+ (usable :y) outer inner))
+      (window/propose-dimensions window
+                                 (- total-w (* 2 inner))
+                                 (- total-h (* 2 inner))))))
 
 (defn wm/manage []
   (update wm :render-order |(->> $ (filter (fn [window] (not (window :closed))))))
@@ -764,12 +774,12 @@
   (fn [&]
     (def config-dir (or (os/getenv "XDG_CONFIG_HOME")
                         (string (os/getenv "HOME") "/.config")))
-    
-    (def config-path 
+
+    (def config-path
       (or (get args 1)
           (let [user-path (string config-dir "/ashrwm/config.janet")]
-            (if (os/stat user-path) 
-              user-path 
+            (if (os/stat user-path)
+              user-path
               "/etc/ashrwm/config.janet"))))
 
     (print "Loading: " config-path)
@@ -777,23 +787,23 @@
     (try
       (do
         (dofile config-path :env repl-env)
-        
+
         (os/execute ["notify-send" "-a" "ashrwm" "Config Reloaded" (string "Loaded: " config-path)] :p)
 
         (each seat (wm :seats)
           (put seat :reload true)))
 
-      ([err] 
+      ([err]
         (eprint "Error in config: " err)
-        
-        (os/execute ["notify-send" "-a" "ashrwm" "-u" "critical" 
-                     "Configuration Error" 
+
+        (os/execute ["notify-send" "-a" "ashrwm" "-u" "critical"
+                     "Configuration Error"
                      (string "File: " config-path "\n\n" err "\n\nFalling back to system default...")] :p)
-        
+
         (when (not= config-path "/etc/ashrwm/config.janet")
           (print "Attempting system default fallback...")
-          (try 
-            (dofile "/etc/ashrwm/config.janet" :env repl-env) 
+          (try
+            (dofile "/etc/ashrwm/config.janet" :env repl-env)
             ([_] (eprint "CRITICAL: System default also failed!"))))))))
 
 (defn repl-server-create []
