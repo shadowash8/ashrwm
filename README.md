@@ -2,16 +2,19 @@
 ![ashrwm image](./images/main.png)
 ![ashrwm image](./images/grid.png)
 ![ashrwm image](./images/tile.png)
+![ashrwm image](./images/scroller.png)
 
 A window manager for the [river](https://codeberg.org/river/river) Wayland compositor.
 
-ashrwm is currently around 700 lines of [Janet](https://janet-lang.org) but
-capable enough to use as my daily driver. 
+ashrwm is currently less than 900 lines of [Janet](https://janet-lang.org) but more than capable enough to use as my daily driver. 
 
 ## Features
 
 - Dynamic tiling with layouts
-  - Live layout change
+  - Tiling layout
+  - Grid layout
+  - Scroller layout
+  - Monocle layout
 - Tags
 	- Each window has exactly one tag
 	- An arbitrary number of tags can be displayed at once on each output
@@ -39,17 +42,36 @@ paru -S ashrwm-git
 
 Run `zig build`. All dependencies will be fetched by Zig and built from source.
 
-Requires Zig 0.15, a statically linked Zig binary can be obtained from https://ziglang.org/download/.
+Requires Zig 0.15 (0.16 not yet supported), a statically linked Zig binary can be obtained from https://ziglang.org/download/.
 
 ## Usage
 
 Run ashrwm inside [river](https://codeberg.org/river/river). Requires river's
-main branch (version 0.4.0-dev). It may be useful to start ashrwm from river's
-init script.
+main branch (version 0.4.2). It may be useful to start ashrwm from river's
+init script in `~/.config/river/init`.
 
-On startup ashrwm will evaluate `$XDG_CONFIG_HOME/ashrwm/config.janet` if the file
-exists. If `$XDG_CONFIG_HOME` is not set, `~/.config/ashrwm/config.janet` will be
-tried instead.
+example river init file:
+```bash
+#!/bin/sh
+# Essentials
+dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=ashrwm
+/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
+
+# Startup programs
+emacs --daemon &
+swayidle -w timeout 600 "systemctl suspend" before-sleep "swaylock" &
+
+ashrwm > ~/.ashrwm.log 2>&1
+```
+
+On startup ashrwm will evaluate `~/.config/ashrwm/config.janet` will be
+tried, if it does not exist or has a error then it falls back to system 
+default in `/etc/ashrwm/config.janet`
+
+Get the default config by, if you have not done it already.
+```bash
+cp /etc/ashrwm/config.janet ~/.config/ashrwm/config.janet
+```
 
 Passing a file to ashrwm as an argument will evaluate that file instead.
 
