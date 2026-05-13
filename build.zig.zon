@@ -5,20 +5,20 @@
     .paths = .{""},
     .dependencies = .{
         .janet = .{
-            .url = "git+https://codeberg.org/ifreund/zig-janet?ref=main#977e2777b9f0f6fd3531bec3c96c7073b690cbe3",
-            .hash = "janet-1.40.1-3XUN8cVGAAA7Os-UamOhi0sYVRqN-slGltgD5Jwwwfdk",
+            .url = "git+https://codeberg.org/shadowash8/zig-janet?ref=main#638d8d204d0bf52291016389fa6102f9c65a1165",
+            .hash = "janet-1.40.1-3XUN8XBHAACHFw6WZRjSbJ0BjX27rXCUvQKat43iHXgA",
         },
         .janet_wayland = .{
             .url = "git+https://codeberg.org/ifreund/janet-wayland?ref=main#0aea1ae8c2b462d609fc739acceeb9ead315c07f",
             .hash = "N-V-__8AAFKzAADGCCHsA4J38ww-aT3CFoj2MbSxtkWX0D50",
         },
         .wayland = .{
-            .url = "git+https://github.com/ifreund/wayland-build.zig#8c7f2c42ab0e4c16853d03914ce1f3259cda40db",
-            .hash = "wayland-1.24.0-3-dxEBa1pmAABlHkqXCGmZ4r9c_N8fhAXculLHBbO2pRRT",
+            .url = "git+https://github.com/shadowash8/wayland-build.zig#4f52f0c5ef51de908b1797683f029d5260b03aaf",
+            .hash = "wayland-1.25.0-dxEBa-F8AABPX6jLWqVIso2VnrD-M_qAmdSPQxLaVZvL",
         },
         .libxkbcommon = .{
-            .url = "git+https://github.com/allyourcodebase/libxkbcommon.git?ref=1.11.0-1#809157d5118909298f3e086fa8d8103198e938fd",
-            .hash = "libxkbcommon-1.11.0-1-93LaF6pwAgDFoaLfOkR8ioG4RVcDHbBhsDmC_rYwyOEG",
+            .url = "git+https://github.com/allyourcodebase/libxkbcommon.git?ref=1.13.1#8c31126430bec39d2cb5f06aa3c2667e006b32ea",
+            .hash = "libxkbcommon-1.13.1-93LaF2x7AgDgSrr8xjRYrYGhtGhJKcZMuID3M95APvl1",
         },
         .janet_xkbcommon = .{
             .url = "git+https://codeberg.org/ifreund/janet-xkbcommon?ref=main#bdd15cd20329078e47abb30bddddfb7b28f52f66",
@@ -33,8 +33,8 @@
             .hash = "N-V-__8AAPMqAQCbXJ9KGZ7pEepOFcJFiLb-PW0LlAOhlgtd",
         },
         .river = .{
-            .url = "git+https://codeberg.org/river/river?ref=v0.4.2#addd4a0c5386fe3efc6d37cdde458d0f3153bebe",
-            .hash = "river-0.4.2-_G6Njq3eCwBPOoLbZB7ULNNEcIFDNJpz-vDYzr6JanWZ",
+            .url = "git+https://codeberg.org/river/river?ref=v0.4.5#f6d961773711dc29d3eb5b60bd14744a6a33894f",
+            .hash = "river-0.4.5-_G6Njt6_CwB4aHyFxnYjZq2_hQLBK4iJd4MkvgWF6RZm",
         },
         .wayland_protocols = .{
             .url = "git+https://gitlab.freedesktop.org/wayland/wayland-protocols?ref=1.48#02e63e74a807afed95bc25a386173110afef24e3",

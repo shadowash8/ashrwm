@@ -21,7 +21,7 @@ pub fn build(b: *Build) !void {
         }),
         .linkage = .dynamic,
     });
-    rawterm.addCSourceFile(.{ .file = spork.path("src/rawterm.c") });
+    rawterm.root_module.addCSourceFile(.{ .file = spork.path("src/rawterm.c") });
     rawterm.root_module.linkLibrary(janet.artifact("janet"));
 
     const rawterm_static = b.addLibrary(.{
@@ -33,7 +33,7 @@ pub fn build(b: *Build) !void {
         }),
         .linkage = .static,
     });
-    rawterm_static.addCSourceFile(.{
+    rawterm_static.root_module.addCSourceFile(.{
         .file = spork.path("src/rawterm.c"),
         .flags = &.{"-DJANET_ENTRY_NAME=janet_module_entry_rawterm"},
     });
@@ -50,7 +50,7 @@ pub fn build(b: *Build) !void {
         }),
         .linkage = .dynamic,
     });
-    wayland_native.addCSourceFile(.{ .file = janet_wayland.path("src/wayland-native.c") });
+    wayland_native.root_module.addCSourceFile(.{ .file = janet_wayland.path("src/wayland-native.c") });
     wayland_native.root_module.linkLibrary(janet.artifact("janet"));
     wayland_native.root_module.linkLibrary(wayland.artifact("wayland-client"));
 
@@ -68,7 +68,7 @@ pub fn build(b: *Build) !void {
         }),
         .linkage = .static,
     });
-    wayland_native_static.addCSourceFile(.{
+    wayland_native_static.root_module.addCSourceFile(.{
         .file = janet_wayland.path("src/wayland-native.c"),
         .flags = &.{"-DJANET_ENTRY_NAME=janet_module_entry_wayland_native"},
     });
@@ -85,7 +85,7 @@ pub fn build(b: *Build) !void {
         }),
         .linkage = .dynamic,
     });
-    xkbcommon_native.addCSourceFile(.{ .file = janet_xkbcommon.path("src/xkbcommon-native.c") });
+    xkbcommon_native.root_module.addCSourceFile(.{ .file = janet_xkbcommon.path("src/xkbcommon-native.c") });
     xkbcommon_native.root_module.linkLibrary(janet.artifact("janet"));
     xkbcommon_native.root_module.linkLibrary(xkbcommon.artifact("xkbcommon"));
 
@@ -103,7 +103,7 @@ pub fn build(b: *Build) !void {
         }),
         .linkage = .static,
     });
-    xkbcommon_native_static.addCSourceFile(.{
+    xkbcommon_native_static.root_module.addCSourceFile(.{
         .file = janet_xkbcommon.path("src/xkbcommon-native.c"),
         .flags = &.{"-DJANET_ENTRY_NAME=janet_module_entry_xkbcommon_native"},
     });
@@ -166,11 +166,11 @@ pub fn build(b: *Build) !void {
             .link_libc = true,
         }),
     });
-    ashrwm.addCSourceFile(.{ .file = generated });
-    ashrwm.linkLibrary(janet_static.artifact("janet"));
-    ashrwm.linkLibrary(wayland_native_static);
-    ashrwm.linkLibrary(rawterm_static);
-    ashrwm.linkLibrary(xkbcommon_native_static);
+    ashrwm.root_module.addCSourceFile(.{ .file = generated });
+    ashrwm.root_module.linkLibrary(janet_static.artifact("janet"));
+    ashrwm.root_module.linkLibrary(wayland_native_static);
+    ashrwm.root_module.linkLibrary(rawterm_static);
+    ashrwm.root_module.linkLibrary(xkbcommon_native_static);
 
     b.installArtifact(ashrwm);
 }
