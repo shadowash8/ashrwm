@@ -42,7 +42,7 @@ paru -S ashrwm-git
 
 Run `zig build`. All dependencies will be fetched by Zig and built from source.
 
-Requires Zig 0.15 (0.16 not yet supported), a statically linked Zig binary can be obtained from https://ziglang.org/download/.
+Requires Zig 0.16, a statically linked Zig binary can be obtained from https://ziglang.org/download/.
 
 ## Usage
 
