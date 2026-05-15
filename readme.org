@@ -1,14 +1,15 @@
-# ashrwm
-![ashrwm image](./images/main.png)
-![ashrwm image](./images/grid.png)
-![ashrwm image](./images/tile.png)
-![ashrwm image](./images/scroller.png)
+* ashrwm
+[[/projects/ashrwm/website.png]]
+[[/projects/ashrwm/scroller.png]]
+[[/projects/ashrwm/gnx.png]]
+[[/projects/ashrwm/grid.png]]
 
-A window manager for the [river](https://codeberg.org/river/river) Wayland compositor.
+A window manager for the [[https://codeberg.org/river/river][river]] Wayland compositor.
 
-ashrwm is currently less than 900 lines of [Janet](https://janet-lang.org) but more than capable enough to use as my daily driver. 
+ashrwm is currently around 900 lines of [[https://janet-lang.org][Janet]] but
+capable enough to use as my daily driver. 
 
-## Features
+** features
 
 - Dynamic tiling with layouts
   - Tiling layout
@@ -26,56 +27,57 @@ ashrwm is currently less than 900 lines of [Janet](https://janet-lang.org) but m
 - Hot reload configuration
 - A REPL
 
-## Install
+** install
 
-### AUR
-```bash
+*** AUR
+#+BEGIN_SRC bash
 paru -S ashrwm
-```
+#+END_SRC
+
 OR
-```bash
+
+#+BEGIN_SRC bash
 paru -S ashrwm-git
-```
+#+END_SRC
 
-
-### Building
+*** building
 
 Run `zig build`. All dependencies will be fetched by Zig and built from source.
 
 Requires Zig 0.16, a statically linked Zig binary can be obtained from https://ziglang.org/download/.
 
-## Usage
+** usage
 
-Run ashrwm inside [river](https://codeberg.org/river/river). Requires river's
-main branch (version 0.4.2). It may be useful to start ashrwm from river's
-init script in `~/.config/river/init`.
+Run ashrwm inside [[river][https://codeberg.org/river/river]]. Requires river v0.4.5. It may be useful to start ashrwm from river's
+init script in ~~/.config/river/init~.
 
 example river init file:
-```bash
+#+BEGIN_SRC bash
 #!/bin/sh
-# Essentials
+# essentials
 dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=ashrwm
 /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
 
-# Startup programs
+# startup programs
 emacs --daemon &
 swayidle -w timeout 600 "systemctl suspend" before-sleep "swaylock" &
 
 ashrwm > ~/.ashrwm.log 2>&1
-```
+#+END_SRC
 
-On startup ashrwm will evaluate `~/.config/ashrwm/config.janet` will be
+On startup ashrwm will evaluate ~~/.config/ashrwm/config.janet~ will be
 tried, if it does not exist or has a error then it falls back to system 
-default in `/etc/ashrwm/config.janet`
+default in ~/etc/ashrwm/config.janet~.
 
 Get the default config by, if you have not done it already.
-```bash
+#+BEGIN_SRC bash
 cp /etc/ashrwm/config.janet ~/.config/ashrwm/config.janet
-```
+#+END_SRC
 
 Passing a file to ashrwm as an argument will evaluate that file instead.
 
-See [example/config.janet](example/config.janet).
 
-## credits
-ashrwm is a fork of [rijan](https://codeberg.org/ifreund/rijan) made by the developer of river [Isaac Freund](https://codeberg.org/ifreund)
+See [[https://github.com/shadowash8/ashrwm/blob/main/example/config.janet][example/config.janet]].
+
+** credits
+ashrwm is a fork of [[https://codeberg.org/ifreund/rijan][rijan]] made by the developer of river [[https://codeberg.org/ifreund][Isaac Freund]].
