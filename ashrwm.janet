@@ -866,8 +866,7 @@
   # It only matters if it's set when the display is created.
   (os/setenv "WAYLAND_DEBUG" nil)
 
-  (def reload-fn (action/config ;args))
-  (action/config args)
+  (def reload-fn (action/config args))
   (reload-fn)
 
   (put registry :obj (:get-registry display))
