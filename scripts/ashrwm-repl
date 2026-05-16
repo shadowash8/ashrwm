@@ -1,0 +1,9 @@
+#!/usr/bin/env janet
+
+(import spork/netrepl)
+
+(def path (string/format "%s/ashrwm-%s"
+                         (assert (os/getenv "XDG_RUNTIME_DIR"))
+                         (assert (os/getenv "WAYLAND_DISPLAY"))))
+
+(netrepl/client :unix path)
