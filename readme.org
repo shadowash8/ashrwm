@@ -1,8 +1,8 @@
 * ashrwm
-[[/projects/ashrwm/website.png]]
-[[/projects/ashrwm/scroller.png]]
-[[/projects/ashrwm/gnx.png]]
-[[/projects/ashrwm/grid.png]]
+[[/images/website.png]]
+[[/images/scroller.png]]
+[[/images/gnx.png]]
+[[/images/grid.png]]
 
 A window manager for the [[https://codeberg.org/river/river][river]] Wayland compositor.
 
