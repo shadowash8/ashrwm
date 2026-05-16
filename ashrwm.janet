@@ -30,6 +30,7 @@
               :inner-padding 4
               :main-ratio 0.60
               :layout :tile
+              :rules @[]
               :xkb-bindings @[]
               :pointer-bindings @[]})
 
@@ -310,6 +311,28 @@
                     :start-w (window :w) :start-h (window :h)
                     :dx 0 :dy 0})))
 
+(defn window/apply-rules [window]
+  (each [matcher value actions] (config :rules)
+    (def match?
+      (case matcher
+        :app-id (let [v (window :app-id)]
+                  (if (string/has-prefix? "~" value)
+                    (peg/match (peg/compile ~(* (re ,(string/slice value 1)) -1)) (or v ""))
+                    (= v value)))
+        :title (let [v (window :title)]
+                 (if (string/has-prefix? "~" value)
+                   (peg/match (peg/compile ~(* (re ,(string/slice value 1)) -1)) (or v ""))
+                   (= v value)))
+        false))
+    (when match?
+      (when-let [tag (actions :tag)]
+        (put window :tag tag))
+      # float/fullscreen/sticky/size are deffered
+      (when (or (actions :float)
+                (actions :sticky)
+                (actions :fullscreen))
+        (put window :pending-rules actions)))))
+
 (defn window/manage-start [window]
   (if (window :closed)
     (do
@@ -329,7 +352,28 @@
         (window/set-float window false)
         (when-let [seat (first (wm :seats))
                    output (seat :focused-output)]
-          (put window :tag (or (min-of (keys (output :tags))) 1))))))
+          (put window :tag (or (min-of (keys (output :tags))) 1)))))
+    (window/apply-rules window))
+
+  (when (and (window :pending-rules) (window :w))
+    (def r (window :pending-rules))
+    (put window :pending-rules nil)
+    (when (or (r :float) (r :sticky))
+      (window/set-float window true)
+      (window/propose-dimensions window 800 600)
+      # center on the focused output
+      (when-let [output (or (window/tag-output window)
+                            (first (wm :outputs)))]
+        (window/set-position window
+                             (+ (output :x) (div (- (output :w) 800) 2))
+                             (+ (output :y) (div (- (output :h) 600) 2)))))
+    (when (r :sticky)
+      (put window :tag :sticky))
+    (when (r :fullscreen)
+      (when-let [output (or (window/tag-output window)
+                            (first (wm :outputs)))]
+        (window/set-fullscreen window output))))
+
   (match (window :fullscreen-requested)
     [:enter] (if-let [seat (first (wm :seats))
                       output (seat :focused-output)]

@@ -19,6 +19,21 @@
 (put config :layout :tile)
 (put config :main-ratio 0.60)
 
+# rules
+# Match on :app-id or :title (prefix with "~" for regex)
+# Actions: :tag, :float, :sticky, :fullscreen
+#
+# examples:
+# [:app-id "foot"               {:tag 3}]
+# [:app-id "pavucontrol"        {:float true}]
+# [:app-id "zen"                {:tag 2}]
+# [:title  "Picture-in-Picture" {:float true :sticky true}]
+# [:app-id "mpv"                {:float true :fullscreen true}]
+# [:title  "~.*timer.*"    {:float true}]
+(set (config :rules)
+     @[])
+
+
 # keybinds
 # mod4 = Super/Windows key
 # mod1 = Alt key
