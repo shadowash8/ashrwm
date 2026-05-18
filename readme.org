@@ -25,6 +25,7 @@ capable enough to use as my daily driver.
 - Focus follows mouse
 - libinput configuration
 - Hot reload configuration
+- Window rules
 - A REPL
 
 ** install
