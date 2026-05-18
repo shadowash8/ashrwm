@@ -31,7 +31,8 @@
 # [:app-id "mpv"                {:float true :fullscreen true}]
 # [:title  "~.*timer.*"    {:float true}]
 (set (config :rules)
-     @[])
+     @[[:app-id "mpv" {:float true}]
+       [:title "Picture-in-Picture" {:float true :sticky true}]])
 
 
 # keybinds
