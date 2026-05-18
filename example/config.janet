@@ -9,19 +9,20 @@
 (put config :tap-to-click true)
 (put config :natural-scroll false)
 (put config :dwt true)
-(put config :focus-follow-mouse true)
+(put config :focus-follows-mouse true)
 
 # layout
 # set the default layout
 # 1. tile
 # 2. grid
-# 3. monocle
+# 3. scroller
+# 4. monocle
 (put config :layout :tile)
 (put config :main-ratio 0.60)
 
 # rules
-# Match on :app-id or :title (prefix with "~" for regex)
-# Actions: :tag, :float, :sticky, :fullscreen
+# match on :app-id or :title (prefix with "~" for regex)
+# actions: :tag, :float, :sticky, :fullscreen
 #
 # examples:
 # [:app-id "foot"               {:tag 3}]
@@ -30,6 +31,10 @@
 # [:title  "Picture-in-Picture" {:float true :sticky true}]
 # [:app-id "mpv"                {:float true :fullscreen true}]
 # [:title  "~.*timer.*"    {:float true}]
+
+# you can get window info from the ashrwm-msg cli tool like:
+# $ ashrwm-msg windows
+# $ ashrwm-msg active
 (set (config :rules)
      @[[:app-id "mpv" {:float true}]
        [:title "Picture-in-Picture" {:float true :sticky true}]])
