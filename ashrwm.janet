@@ -744,7 +744,14 @@
   (fn [seat binding]
     (if-let [window (seat :focused)]
       (unless (= (window :tag) :sticky)
-        (window/set-float window (not (window :float)))))))
+		(window/set-float window (not (window :float)))
+		# center on the float
+		(when-let [output (or (window/tag-output window)
+                              (first (wm :outputs)))]
+		  (window/propose-dimensions window 800 600)
+          (window/set-position window
+                               (+ (output :x) (div (- (output :w) 800) 2))
+                               (+ (output :y) (div (- (output :h) 600) 2))))))))
 
 (defn action/fullscreen []
   (fn [seat binding]
