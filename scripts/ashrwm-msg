@@ -1,0 +1,118 @@
+#!/usr/bin/env bash
+# ashrwm-msg — query ashrwm state via its netrepl socket
+
+SOCKET="${ASHRWM_SOCKET:-/run/user/$(id -u)/ashrwm-wayland-1}"
+
+die() { echo "ashrwm-msg: $*" >&2; exit 1; }
+
+usage() {
+  cat >&2 <<EOF
+Usage: ashrwm-msg [--raw] <query>
+
+Queries:
+  windows       All windows
+  active        Focused window
+  tags          Active tags per output
+  outputs       Output geometry
+  config        WM config
+  layout        Current layout
+  render-order  Windows in render order (topmost last)
+  seats         Seat info
+  <(expr)>      Raw Janet expression
+
+Options:
+  --raw         Raw Janet output (no formatting)
+  -s <socket>   Socket path (default: $SOCKET)
+  -h            Show this help
+
+Environment:
+  ASHRWM_SOCKET Override socket path
+EOF
+  exit 1
+}
+
+send_raw() {
+  echo "$1" | janet -e "(import spork/netrepl) (netrepl/client :unix \"$SOCKET\")"
+}
+
+send() {
+  # %p pretty-prints into a buffer/string we can actually receive back
+  send_raw "(buffer/format @\"\" \"%p\" $1)" \
+    | python3 -c "
+import sys, codecs
+
+raw = sys.stdin.read().strip()
+
+# Strip surrounding @\"...\" wrapper janet adds
+if raw.startswith('@\"') and raw.endswith('\"'):
+    raw = raw[2:-1]
+
+# Unescape janet string escapes
+raw = raw.replace('\\\\n', '\n') \
+         .replace('\\\\t', '\t') \
+         .replace('\\\\\"', '\"')
+
+# Add blank line between structs in arrays (} @{ on same line)
+raw = raw.replace('} @{', '}\n\n@{')
+
+# Drop lines containing wayland proxy objects — pure noise
+lines = [l for l in raw.splitlines() if '<wayland/proxy' not in l]
+
+# Drop keys whose value was a proxy and are now empty (lone :key lines)
+cleaned = []
+for i, line in enumerate(lines):
+    stripped = line.strip()
+    next_line = lines[i+1].strip() if i+1 < len(lines) else ''
+    if stripped.startswith(':') and ' ' not in stripped and not next_line.startswith(':'):
+        continue
+    # Add blank line between structs in an array
+    if stripped.endswith('}') and next_line.startswith('@{'):
+        cleaned.append(line)
+        cleaned.append('')
+    else:
+        cleaned.append(line)
+
+print('\n'.join(cleaned))
+"
+}
+
+RAW=0
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --raw) RAW=1; shift ;;
+    -s) SOCKET="$2"; shift 2 ;;
+    -h) usage ;;
+    --) shift; break ;;
+    -*) die "unknown flag: $1" ;;
+    *) break ;;
+  esac
+done
+
+[[ $# -lt 1 ]] && usage
+[[ -S "$SOCKET" ]] || die "socket not found: $SOCKET (is ashrwm running?)"
+
+run() {
+  if [[ $RAW -eq 1 ]]; then
+    send_raw "$1"
+  else
+    send "$1"
+  fi
+}
+
+case "$1" in
+  windows) run "(wm :windows)" ;;
+  active) run "(map |($ :focused) (wm :seats))" ;;
+  tags) run "(map |($ :tags) (wm :outputs))" ;;
+  outputs) run "(wm :outputs)" ;;
+  config) run "(wm :config)" ;;
+  layout) run "((wm :config) :layout)" ;;
+  render-order) run "(wm :render-order)" ;;
+  seats) run "(wm :seats)" ;;
+  *)
+    if [[ "$1" == \(* ]]; then
+      run "$1"
+    else
+      die "unknown query: '$1'. Run -h for help, or pass a raw janet expr like '(wm :windows)'"
+    fi
+    ;;
+esac
