@@ -18,6 +18,7 @@ capable enough to use as my daily driver.
   - Monocle layout
 - Tags
 	- Each window has exactly one tag
+    - Each tag has a specific layout
 	- An arbitrary number of tags can be displayed at once on each output
 	- Each tag can be displayed on at most one output at a time
 - Floating windows

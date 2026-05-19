@@ -30,6 +30,7 @@
               :inner-padding 4
               :main-ratio 0.60
               :layout :tile
+			  :layouts @{}
               :rules @[]
               :xkb-bindings @[]
               :pointer-bindings @[]})
@@ -539,8 +540,11 @@
   (def total-w (max 0 (- (usable :w) (* 2 outer))))
   (def total-h (max 0 (- (usable :h) (* 2 outer))))
 
+  (def current-tag (or (min-of (keys (output :tags))) 1))
+  (def layout (or ((config :layouts) current-tag) (config :layout)))
+
   # Tile layout
-  (if (= (config :layout) :tile)
+  (if (= layout :tile)
     (do
       (def side-count (- (length windows) 1))
       (def main-w (if (= 0 side-count) total-w (math/round (* total-w ((wm :config) :main-ratio)))))
@@ -565,7 +569,7 @@
                 windows))))
 
   # Grid layout
-  (if (= (config :layout) :grid)
+  (if (= layout :grid)
     (do
       (def n (length windows))
       (when (pos? n)
@@ -599,7 +603,7 @@
                   windows)))))
 
   # Scroller layout
-  (if (= (config :layout) :scroller)
+  (if (= layout :scroller)
     (do
       (def n (length windows))
       (when (pos? n)
@@ -640,7 +644,7 @@
           (-= i 1)))))
 
   # Monocle layout
-  (if (= (config :layout) :monocle)
+  (if (= layout :monocle)
     (each window windows
       (window/set-position window
                            (+ (usable :x) outer inner)
@@ -774,7 +778,9 @@
 
 (defn action/layout [layout]
   (fn [seat binding]
-    (put config :layout layout)))
+    (when-let [output (seat :focused-output)
+               tag (min-of (keys (output :tags)))]
+      (put (config :layouts) tag layout))))
 
 (defn action/swap-main []
   (fn [seat binding]

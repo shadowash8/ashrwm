@@ -12,13 +12,18 @@
 (put config :focus-follows-mouse true)
 
 # layout
-# set the default layout
 # 1. tile
 # 2. grid
 # 3. scroller
 # 4. monocle
+# set the default layout (fallback for all tags)
 (put config :layout :tile)
 (put config :main-ratio 0.60)
+# per-tag layout overrides (optional)
+# any tag not listed here uses the default layout above
+(put config :layouts @{1 :scroller
+                       2 :monocle
+                       3 :grid})
 
 # rules
 # match on :app-id or :title (prefix with "~" for regex)
