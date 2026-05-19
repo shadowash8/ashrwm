@@ -67,7 +67,7 @@
 
 (defn output/visible [output windows]
   (let [tags (output :tags)]
-    (filter |(tags ($ :tag)) windows)))
+    (filter |(or (= ($ :tag) :sticky) (tags ($ :tag))) windows)))
 
 (defn output/usable-area [output]
   (if-let [[x y w h] (output :non-exclusive-area)]
@@ -127,10 +127,9 @@
                        (max 1 (- h (* 2 border-width)))))
 
 (defn window/set-float [window float]
-  (unless (= (window :tag) :sticky)
-    (if float
-      (:set-tiled (window :obj) {})
-      (:set-tiled (window :obj) {:left true :bottom true :top true :right true})))
+  (if float
+    (:set-tiled (window :obj) {})
+    (:set-tiled (window :obj) {:left true :bottom true :top true :right true}))
   (put window :float float))
 
 (defn window/set-fullscreen [window fullscreen-output]
@@ -165,9 +164,10 @@
   max-overlap-output)
 
 (defn window/update-tag [window]
-  (when-let [output (window/max-overlap-output window)]
-    (unless (= output (window/tag-output window))
-      (put window :tag (or (min-of (keys (output :tags))) 1)))))
+  (unless (= (window :tag) :sticky)
+	(when-let [output (window/max-overlap-output window)]
+      (unless (= output (window/tag-output window))
+		(put window :tag (or (min-of (keys (output :tags))) 1))))))
 
 (defn window/create [obj]
   (def window @{:obj obj
@@ -268,7 +268,7 @@
       (when-let [output (window/tag-output window)]
         (seat/focus-output seat output)))
     (when-let [output (seat :focused-output)]
-      (defn visible? [w] (and w ((output :tags) (w :tag))))
+	  (defn visible? [w] (and w (or (= (w :tag) :sticky) ((output :tags) (w :tag)))))
       (def visible (output/visible output (wm :render-order)))
       (cond
         # The top fullscreen window always grabs focus when present.
@@ -763,12 +763,13 @@
 (defn action/sticky []
   (fn [seat binding]
     (when-let [focused (seat :focused)
-               output (seat :focused-output)
-               tag (min-of (keys (output :tags)))]
+               output (or (seat :focused-output) (first (wm :outputs)))]
       (if (= (focused :tag) :sticky)
-        (put focused :tag tag)
+        (let [current-tag (or (first (keys (output :tags))) 1)]
+          (put focused :tag current-tag)
+          (window/set-float focused false))
         (do
-          (window/set-float focused true)
+		  ((action/float) seat binding)
           (put focused :tag :sticky))))))
 
 (defn action/layout [layout]
