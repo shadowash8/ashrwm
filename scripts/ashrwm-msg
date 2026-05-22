@@ -12,6 +12,7 @@ Usage: ashrwm-msg [--raw] <query>
 Queries:
   windows       All windows
   active        Focused window
+  rules         Window rules
   tags          Active tags per output
   outputs       Output geometry
   config        WM config
@@ -102,6 +103,7 @@ run() {
 case "$1" in
   windows) run "(wm :windows)" ;;
   active) run "(map |($ :focused) (wm :seats))" ;;
+  rules) run "(config :rules)" ;;
   tags) run "(map |($ :tags) (wm :outputs))" ;;
   outputs) run "(wm :outputs)" ;;
   config) run "(wm :config)" ;;
