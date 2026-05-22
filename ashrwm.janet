@@ -703,7 +703,8 @@
 (defn action/target [seat dir]
   (when-let [window (seat :focused)
              output (window/tag-output window)
-             visible (output/visible output (wm :windows))
+             visible (filter |(not= ($ :tag) :sticky)
+                             (output/visible output (wm :windows)))
              i (assert (index-of window visible))]
     (case dir
       :next (get visible (+ i 1) (first visible))
