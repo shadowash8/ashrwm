@@ -31,6 +31,7 @@
               :main-ratio 0.60
               :layout :tile
 			  :layouts @{}
+			  :focus-wrap true
               :rules @[]
               :xkb-bindings @[]
               :pointer-bindings @[]})
@@ -706,10 +707,10 @@
              visible (filter |(not= ($ :tag) :sticky)
                              (output/visible output (wm :windows)))
              i (assert (index-of window visible))]
-    (case dir
-      :next (get visible (+ i 1) (first visible))
-      :prev (get visible (- i 1) (last visible))
-      (error "invalid dir"))))
+    (when (and i visible)
+      (case dir
+        :next (get visible (+ i 1) (when (config :focus-wrap) (first visible)))
+        :prev (get visible (- i 1) (when (config :focus-wrap) (last visible)))))))
 
 (defn action/spawn [command]
   (fn [seat binding]

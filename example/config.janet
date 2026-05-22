@@ -24,6 +24,8 @@
 (put config :layouts @{1 :scroller
                        2 :monocle
                        3 :grid})
+ # wrap window focus with target next or previous
+(put config :focus-wrap true)
 
 # rules
 # match on :app-id or :title (prefix with "~" for regex)
