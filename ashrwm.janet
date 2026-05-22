@@ -35,6 +35,7 @@
               :layout :tile
 			  :layouts @{}
 			  :focus-wrap true
+			  :float-on-top true
               :rules @[]
               :xkb-bindings @[]
               :pointer-bindings @[]})
@@ -409,6 +410,10 @@
 (defn window/render [window]
   (when (= (window :tag) :sticky)
     (:place-top (window :node)))
+  (when (config :float-on-top)
+    (each window (wm :windows)
+      (when (and (window :float) (not= (window :tag) :sticky))
+        (:place-top (window :node)))))
   (when (and (not (window :x)) (window :w))
     # Windows that start with a parent have nil x/y until ashrwm receives
     # a dimensions event and a render sequence is completed.
