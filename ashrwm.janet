@@ -26,6 +26,9 @@
     "river_libinput_config_v1" 1})
 
 (def config @{:border-width 2
+			  :border-sticky 0x356239
+			  :border-normal 0x444444
+			  :border-focused 0xffffff
               :outer-padding 4
               :inner-padding 4
               :main-ratio 0.60
@@ -395,8 +398,9 @@
 
 (defn- set-borders [window status config]
   (def rgb (case status
-             :normal (config :border-normal)
-             :focused (config :border-focused)))
+             :focused (config :border-focused)
+             :sticky  (config :border-sticky)
+             :normal  (config :border-normal)))
   (:set-borders (window :obj)
                 {:left true :bottom true :top true :right true}
                 (config :border-width)
@@ -413,9 +417,12 @@
                            (+ (output :x) (div (- (output :w) (window :w)) 2))
                            (+ (output :y) (div (- (output :h) (window :h)) 2)))
       (window/set-position window 0 0)))
-  (if (find |(= ($ :focused) window) (wm :seats))
-    (set-borders window :focused (wm :config))
-    (set-borders window :normal (wm :config))))
+  (def sticky  (= (window :tag) :sticky))
+  (def focused (find |(= ($ :focused) window) (wm :seats)))
+  (cond
+	focused (set-borders window :focused (wm :config))
+	sticky  (set-borders window :sticky  (wm :config))
+	(set-borders window :normal (wm :config))))
 
 (defn seat/manage-start [seat]
   (if (seat :removed)

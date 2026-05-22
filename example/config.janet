@@ -2,8 +2,9 @@
 (put config :border-width 2)
 (put config :outer-padding 4)
 (put config :inner-padding 4)
-(put config :border-focused 0xffffff)
+(put config :border-sticky 0x356239)
 (put config :border-normal 0x444444)
+(put config :border-focused 0xffffff)
 
 # input
 (put config :tap-to-click true)
