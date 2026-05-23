@@ -26,16 +26,16 @@
     "river_libinput_config_v1" 1})
 
 (def config @{:border-width 2
-			  :border-sticky 0x356239
-			  :border-normal 0x444444
-			  :border-focused 0xffffff
+              :border-sticky 0x356239
+              :border-normal 0x444444
+              :border-focused 0xffffff
               :outer-padding 4
               :inner-padding 4
               :main-ratio 0.60
               :layout :tile
-			  :layouts @{}
-			  :focus-wrap true
-			  :float-on-top true
+              :layouts @{}
+              :focus-wrap true
+              :float-on-top true
               :rules @[]
               :xkb-bindings @[]
               :pointer-bindings @[]})
@@ -171,9 +171,9 @@
 
 (defn window/update-tag [window]
   (unless (= (window :tag) :sticky)
-	(when-let [output (window/max-overlap-output window)]
+    (when-let [output (window/max-overlap-output window)]
       (unless (= output (window/tag-output window))
-		(put window :tag (or (min-of (keys (output :tags))) 1))))))
+        (put window :tag (or (min-of (keys (output :tags))) 1))))))
 
 (defn window/create [obj]
   (def window @{:obj obj
@@ -274,7 +274,7 @@
       (when-let [output (window/tag-output window)]
         (seat/focus-output seat output)))
     (when-let [output (seat :focused-output)]
-	  (defn visible? [w] (and w (or (= (w :tag) :sticky) ((output :tags) (w :tag)))))
+      (defn visible? [w] (and w (or (= (w :tag) :sticky) ((output :tags) (w :tag)))))
       (def visible (output/visible output (wm :render-order)))
       (cond
         # The top fullscreen window always grabs focus when present.
@@ -400,8 +400,8 @@
 (defn- set-borders [window status config]
   (def rgb (case status
              :focused (config :border-focused)
-             :sticky  (config :border-sticky)
-             :normal  (config :border-normal)))
+             :sticky (config :border-sticky)
+             :normal (config :border-normal)))
   (:set-borders (window :obj)
                 {:left true :bottom true :top true :right true}
                 (config :border-width)
@@ -422,12 +422,12 @@
                            (+ (output :x) (div (- (output :w) (window :w)) 2))
                            (+ (output :y) (div (- (output :h) (window :h)) 2)))
       (window/set-position window 0 0)))
-  (def sticky  (= (window :tag) :sticky))
+  (def sticky (= (window :tag) :sticky))
   (def focused (find |(= ($ :focused) window) (wm :seats)))
   (cond
-	focused (set-borders window :focused (wm :config))
-	sticky  (set-borders window :sticky  (wm :config))
-	(set-borders window :normal (wm :config))))
+    focused (set-borders window :focused (wm :config))
+    sticky (set-borders window :sticky (wm :config))
+    (set-borders window :normal (wm :config))))
 
 (defn seat/manage-start [seat]
   (if (seat :removed)
@@ -762,11 +762,11 @@
   (fn [seat binding]
     (if-let [window (seat :focused)]
       (unless (= (window :tag) :sticky)
-		(window/set-float window (not (window :float)))
-		# center on the float
-		(when-let [output (or (window/tag-output window)
+        (window/set-float window (not (window :float)))
+        # center on the float
+        (when-let [output (or (window/tag-output window)
                               (first (wm :outputs)))]
-		  (window/propose-dimensions window 800 600)
+          (window/propose-dimensions window 800 600)
           (window/set-position window
                                (+ (output :x) (div (- (output :w) 800) 2))
                                (+ (output :y) (div (- (output :h) 600) 2))))))))
@@ -787,7 +787,7 @@
           (put focused :tag current-tag)
           (window/set-float focused false))
         (do
-		  ((action/float) seat binding)
+          ((action/float) seat binding)
           (put focused :tag :sticky))))))
 
 (defn action/layout [layout]
@@ -929,7 +929,7 @@
 
 (defn main [& args]
   (when (has-value? args "--version")
-    (print "ashrwm " "v0.2.2")
+    (print "ashrwm " "v0.3.0")
     (os/exit 0))
 
   (def display (wayland/connect interfaces))

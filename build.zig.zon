@@ -1,6 +1,6 @@
 .{
     .name = .ashrwm,
-    .version = "0.2.2",
+    .version = "0.3.0",
     .minimum_zig_version = "0.16.0",
     .paths = .{""},
     .dependencies = .{
