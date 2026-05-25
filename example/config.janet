@@ -72,6 +72,8 @@
        [:c {:mod4 true} (action/layout :monocle)]
        [:equal {:mod4 true} (action/main-ratio 0.05)]
        [:minus {:mod4 true} (action/main-ratio -0.05)]
+       [:equal {:mod4 true :shift true} (action/window-ratio 0.05)]
+       [:minus {:mod4 true :shift true} (action/window-ratio -0.05)]
        [:p {:mod4 true} (action/spawn ["sh" "-c" "grim -g \"$(slurp)\" - | wl-copy"])]
        [:Escape {:mod4 true :mod1 true :shift true :ctrl true} (action/passthrough)]
        [:BackSpace {:mod4 true :mod1 true :shift true :ctrl true} (action/exit-session)]

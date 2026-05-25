@@ -620,10 +620,11 @@
     (do
       (def n (length windows))
       (when (pos? n)
-        (def main-w (math/round (* total-w (config :main-ratio))))
         (def focused (or (find (fn [w] (find |(= ($ :focused) w) (wm :seats))) windows)
                          (first windows)))
         (def fi (index-of focused windows))
+        (def main-ratio (or (focused :ratio) (config :main-ratio)))
+        (def main-w (math/round (* total-w main-ratio)))
         (def focused-x
           (if (focused :scroll-x)
             (max (+ (usable :x) outer inner)
@@ -638,21 +639,25 @@
         (var rx (+ focused-x main-w inner))
         (each i (range (+ fi 1) n)
           (def window (get windows i))
+          (def w-ratio (or (window :ratio) (config :main-ratio)))
+          (def w-width (math/round (* total-w w-ratio)))
           (put window :scroll-x rx)
           (window/set-position window rx (+ (usable :y) outer inner))
           (window/propose-dimensions window
-                                     (- main-w (* 2 inner))
+                                     (- w-width (* 2 inner))
                                      (- total-h (* 2 inner)))
-          (+= rx (+ main-w inner)))
+          (+= rx (+ w-width inner)))
         (var lx focused-x)
         (var i (- fi 1))
         (while (>= i 0)
           (def window (get windows i))
-          (-= lx (+ main-w inner))
+          (def w-ratio (or (window :ratio) (config :main-ratio)))
+          (def w-width (math/round (* total-w w-ratio)))
+          (-= lx (+ w-width inner))
           (put window :scroll-x lx)
           (window/set-position window lx (+ (usable :y) outer inner))
           (window/propose-dimensions window
-                                     (- main-w (* 2 inner))
+                                     (- w-width (* 2 inner))
                                      (- total-h (* 2 inner)))
           (-= i 1)))))
 
@@ -820,6 +825,13 @@
   (fn [seat binding]
     (put config :main-ratio
          (max 0.1 (min 0.9 (+ (config :main-ratio) delta))))))
+
+(defn action/window-ratio [delta]
+  (fn [seat binding]
+    (when-let [focused (seat :focused)]
+      (def current-ratio (or (focused :ratio) (config :main-ratio)))
+      (put focused :ratio 
+           (max 0.1 (min 0.9 (+ current-ratio delta)))))))
 
 (defn action/set-tag [tag]
   (fn [seat binding]
