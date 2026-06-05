@@ -36,6 +36,7 @@
               :layouts @{}
               :focus-wrap true
               :float-on-top true
+			  :new-window-position :start
               :rules @[]
               :xkb-bindings @[]
               :pointer-bindings @[]})
@@ -706,7 +707,9 @@
     [:render-start] (wm/render)
     [:output obj] (array/push (wm :outputs) (output/create obj))
     [:seat obj] (array/push (wm :seats) (seat/create obj))
-    [:window obj] (array/insert (wm :windows) 0 (window/create obj))))
+	[:window obj] (if (= (config :new-window-position) :end)
+					(array/push (wm :windows) (window/create obj))
+					(array/insert (wm :windows) 0 (window/create obj)))))
 
 (defn registry/handle-event [event]
   (def obj (registry :obj))

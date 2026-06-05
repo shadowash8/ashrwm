@@ -28,6 +28,9 @@
  # wrap window focus with target next or previous
 (put config :focus-wrap true)
 (put config :float-on-top true)
+# new window to be placed in start or the end of the stack
+# either :start or :end
+(put config :new-window-position :start) 
 
 # rules
 # match on :app-id or :title (prefix with "~" for regex)
