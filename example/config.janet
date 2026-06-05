@@ -73,6 +73,8 @@
        [:x {:mod4 true} (action/layout :grid)]
        [:s {:mod4 true} (action/layout :scroller)]
        [:c {:mod4 true} (action/layout :monocle)]
+       [:l {:mod4 true :shift true} (action/view-tag :next)]
+       [:h {:mod4 true :shift true} (action/view-tag :prev)]
        [:equal {:mod4 true} (action/main-ratio 0.05)]
        [:minus {:mod4 true} (action/main-ratio -0.05)]
        [:equal {:mod4 true :shift true} (action/window-ratio 0.05)]

@@ -874,6 +874,17 @@
       (map |(put $ :tags @{}) (wm :outputs))
       (put output :tags (table ;(mapcat |[$ true] (range 1 10)))))))
 
+(defn action/view-tag [dir]
+  (fn [seat binding]
+    (when-let [output (seat :focused-output)
+               current-tag (or (min-of (keys (output :tags))) 1)
+               target-tag (case dir
+                            :next (if (>= current-tag 9) 1 (+ current-tag 1))
+                            :prev (if (<= current-tag 1) 9 (- current-tag 1)))]
+      (put output :tags @{})
+      (put (output :tags) target-tag true)
+      (seat/focus seat nil))))
+
 (defn action/pointer-move []
   (fn [seat binding]
     (when-let [window (seat :pointer-target)]
