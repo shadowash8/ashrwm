@@ -626,12 +626,16 @@
         (def fi (index-of focused windows))
         (def main-ratio (or (focused :ratio) (config :main-ratio)))
         (def main-w (math/round (* total-w main-ratio)))
-        (def focused-x
-          (if (focused :scroll-x)
-            (max (+ (usable :x) outer inner)
-                 (min (focused :scroll-x)
-                      (- (+ (usable :x) (usable :w)) outer inner main-w)))
-            (+ (usable :x) outer inner)))
+		(def focused-x
+		  (if (and (focused :scroll-x) (not= fi 0))
+            (if (= fi (- n 1))
+              (- (+ (usable :x) (usable :w)) outer inner main-w)
+              (max (+ (usable :x) outer inner)
+                   (min (focused :scroll-x)
+                        (- (+ (usable :x) (usable :w)) outer inner main-w))))
+            (if (= fi 0)
+              (+ (usable :x) outer inner)
+              (- (+ (usable :x) (usable :w)) outer inner main-w))))
         (put focused :scroll-x focused-x)
         (window/set-position focused focused-x (+ (usable :y) outer inner))
         (window/propose-dimensions focused
