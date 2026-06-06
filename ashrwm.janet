@@ -621,7 +621,7 @@
     (do
       (def n (length windows))
       (when (pos? n)
-        (def focused (or (find (fn [w] (find |(= ($ :focused) w) (wm :seats))) windows)
+		(def focused (or (find (fn [w] (index-of w windows)) (reverse (wm :render-order)))
                          (first windows)))
         (def fi (index-of focused windows))
         (def main-ratio (or (focused :ratio) (config :main-ratio)))
