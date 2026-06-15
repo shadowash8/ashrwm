@@ -36,7 +36,7 @@
               :layouts @{}
               :focus-wrap true
               :float-on-top true
-			  :new-window-position :start
+              :new-window-position :start
               :rules @[]
               :xkb-bindings @[]
               :pointer-bindings @[]})
@@ -621,13 +621,13 @@
     (do
       (def n (length windows))
       (when (pos? n)
-		(def focused (or (find (fn [w] (index-of w windows)) (reverse (wm :render-order)))
+        (def focused (or (find (fn [w] (index-of w windows)) (reverse (wm :render-order)))
                          (first windows)))
         (def fi (index-of focused windows))
         (def main-ratio (or (focused :ratio) (config :main-ratio)))
         (def main-w (math/round (* total-w main-ratio)))
-		(def focused-x
-		  (if (and (focused :scroll-x) (not= fi 0))
+        (def focused-x
+          (if (and (focused :scroll-x) (not= fi 0))
             (if (= fi (- n 1))
               (- (+ (usable :x) (usable :w)) outer inner main-w)
               (max (+ (usable :x) outer inner)
@@ -711,9 +711,9 @@
     [:render-start] (wm/render)
     [:output obj] (array/push (wm :outputs) (output/create obj))
     [:seat obj] (array/push (wm :seats) (seat/create obj))
-	[:window obj] (if (= (config :new-window-position) :end)
-					(array/push (wm :windows) (window/create obj))
-					(array/insert (wm :windows) 0 (window/create obj)))))
+    [:window obj] (if (= (config :new-window-position) :end)
+                    (array/push (wm :windows) (window/create obj))
+                    (array/insert (wm :windows) 0 (window/create obj)))))
 
 (defn registry/handle-event [event]
   (def obj (registry :obj))
@@ -837,7 +837,7 @@
   (fn [seat binding]
     (when-let [focused (seat :focused)]
       (def current-ratio (or (focused :ratio) (config :main-ratio)))
-      (put focused :ratio 
+      (put focused :ratio
            (max 0.1 (min 0.9 (+ current-ratio delta)))))))
 
 (defn action/set-tag [tag]
