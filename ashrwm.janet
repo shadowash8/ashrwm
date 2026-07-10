@@ -679,11 +679,19 @@
   # Floating layout
   (if (= layout :floating)
     (each window windows
-      (window/set-float window (not (window :float)))
-      (window/propose-dimensions window 800 600)
-      (window/set-position window
-                           (+ (usable :x) outer inner)
-                           (+ (usable :y) outer inner)))))
+      (unless (window :layout-float)
+        (put window :layout-float true)
+        (window/set-float window true)
+        (window/propose-dimensions window 800 600)
+        (window/set-position window
+                             (+ (usable :x) (div (- (usable :w) 800) 2))
+                             (+ (usable :y) (div (- (usable :h) 600) 2))))))
+
+  (unless (= layout :floating)
+    (each window (output/visible output (wm :windows))
+      (when (window :layout-float)
+        (put window :layout-float nil)
+        (window/set-float window false)))))
 
 (defn wm/manage []
   (update wm :render-order |(->> $ (filter (fn [window] (not (window :closed))))))
