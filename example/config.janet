@@ -17,6 +17,7 @@
 # 2. grid
 # 3. scroller
 # 4. monocle
+# 5. floating
 # set the default layout (fallback for all tags)
 (put config :layout :tile)
 (put config :main-ratio 0.60)
@@ -30,7 +31,7 @@
 (put config :float-on-top true)
 # new window to be placed in start or the end of the stack
 # either :start or :end
-(put config :new-window-position :start) 
+(put config :new-window-position :start)
 
 # rules
 # match on :app-id or :title (prefix with "~" for regex)
@@ -56,7 +57,7 @@
 # mod4 = Super/Windows key
 # mod1 = Alt key
 (set (config :xkb-bindings)
-     @[[:space {:mod4 true :mod1 true} (action/spawn ["foot"])]
+     @[[:Return {:mod4 true} (action/spawn ["foot"])]
        [:l {:mod4 true} (action/spawn ["fuzzel"])]
        [:u {:mod4 true :mod1 true} (action/close)]
        [:r {:mod4 true} (action/config)]
@@ -73,6 +74,7 @@
        [:x {:mod4 true} (action/layout :grid)]
        [:s {:mod4 true} (action/layout :scroller)]
        [:c {:mod4 true} (action/layout :monocle)]
+       [:f {:mod4 true} (action/layout :floating)]
        [:l {:mod4 true :shift true} (action/view-tag :next)]
        [:h {:mod4 true :shift true} (action/view-tag :prev)]
        [:equal {:mod4 true} (action/main-ratio 0.05)]

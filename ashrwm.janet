@@ -674,7 +674,16 @@
                            (+ (usable :y) outer inner))
       (window/propose-dimensions window
                                  (- total-w (* 2 inner))
-                                 (- total-h (* 2 inner))))))
+                                 (- total-h (* 2 inner)))))
+
+  # Floating layout
+  (if (= layout :floating)
+    (each window windows
+      (window/set-float window (not (window :float)))
+      (window/propose-dimensions window 800 600)
+      (window/set-position window
+                           (+ (usable :x) outer inner)
+                           (+ (usable :y) outer inner)))))
 
 (defn wm/manage []
   (update wm :render-order |(->> $ (filter (fn [window] (not (window :closed))))))
