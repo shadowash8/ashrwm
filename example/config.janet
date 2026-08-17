@@ -26,7 +26,7 @@
 (put config :layouts @{1 :scroller
                        2 :monocle
                        3 :grid})
- # wrap window focus with target next or previous
+# wrap window focus with target next or previous
 (put config :focus-wrap true)
 (put config :float-on-top true)
 # new window to be placed in start or the end of the stack
@@ -84,6 +84,13 @@
        [:p {:mod4 true} (action/spawn ["sh" "-c" "grim -g \"$(slurp)\" - | wl-copy"])]
        [:Escape {:mod4 true :mod1 true :shift true :ctrl true} (action/passthrough)]
        [:BackSpace {:mod4 true :mod1 true :shift true :ctrl true} (action/exit-session)]
+
+       # Screenshots
+       [:Print {} (action/spawn ["sh" "-c" "screenshot clip"])]
+       [:Print {:mod1 true} (action/spawn ["sh" "-c" "screenshot"])]
+       [:Print {:mod1 true :shift true} (action/spawn ["sh" "-c" "screenshot ocr"])]
+       [:Print {:mod1 true :mod1 true} (action/spawn ["sh" "-c" "screenshot full"])]
+       [:Print {:mod1 true :ctrl true :shift true} (action/spawn ["sh" "-c" "screenshot color"])]
        [:0 {:mod4 true} (action/focus-all-tags)]])
 
 (for i 1 10
